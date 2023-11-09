@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { Pool } from 'postgres-pool';
 import { POSTGRES_CONFIG } from 'src/config/database/postgres';
 import { PG_CONNECTION } from 'src/common/constants';
+import { DatabaseService } from './database.service';
 
 const pool = new Pool(POSTGRES_CONFIG);
 
@@ -10,13 +11,15 @@ pool.on('error', err => {
   process.exit(-1);
 });
 
-const dbProvider = {
-  provide: PG_CONNECTION,
-  useValue: pool,
-};
-
+@Global()
 @Module({
-  providers: [dbProvider],
-  exports: [dbProvider],
+  providers: [
+    DatabaseService,
+    {
+      provide: PG_CONNECTION,
+      useFactory: () => pool,
+    },
+  ],
+  exports: [DatabaseService],
 })
 export class DatabaseModule {}
