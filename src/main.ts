@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import cookieParser = require('cookie-parser');
 
 async function bootstrap() {
   const PORT = process.env.PORT || 3000;
@@ -9,6 +10,14 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
+
+  app.use(cookieParser());
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    exposedHeaders: ['set-cookie'],
+  });
 
   const config = new DocumentBuilder()
     .setTitle('expense-backend')

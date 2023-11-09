@@ -6,5 +6,19 @@ export class User {
   displayname: string;
   role: ROLES;
   password: string;
-  sessionId: string;
+  sessionid: string;
+}
+
+export class UserProperties {
+  id: number;
+  username: string;
+  displayname: string;
+  role: ROLES;
+  sessionid: string;
+}
+
+export class UserEntitiesWithToken {
+  user: UserProperties;
+  accessToken: string;
+  refreshToken: string;
 }

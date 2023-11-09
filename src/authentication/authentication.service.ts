@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { IPayload } from './interfaces/jwt-interface';
+import { IPayload, IRefreshPayload } from './interfaces/jwt-interface';
 
 @Injectable()
 export class AuthenticationService {
@@ -17,8 +17,8 @@ export class AuthenticationService {
     });
   }
 
-  generateRefreshToken(userId: number) {
-    return jwt.sign({ userId }, this.jwtRefreshKey, {
+  generateRefreshToken(payload: IRefreshPayload) {
+    return jwt.sign(payload, this.jwtRefreshKey, {
       expiresIn: this.jwtRefreshLifetime,
     });
   }

@@ -5,6 +5,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
 import { CategoriesModule } from './categories/categories.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { UsersModule } from './users/users.module';
+import { CookieModule } from './cookie/cookie.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -23,6 +24,7 @@ import * as Joi from 'joi';
     CategoriesModule,
     TransactionsModule,
     UsersModule,
+    CookieModule,
   ],
 })
 export class AppModule {}

@@ -42,7 +42,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    if (user.sessionId !== sessionId) {
+    if (!user.sessionid) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    if (user.sessionid !== sessionId) {
       throw new UnauthorizedException('Unauthorized');
     }
 
