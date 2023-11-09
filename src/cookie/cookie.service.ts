@@ -1,8 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import { IRefreshPayload } from 'src/authentication/interfaces/jwt-interface';
 import { DatabaseService } from 'src/database/database.service';
+import { ISetCookieInterface } from './interfaces';
 
 @Injectable()
 export class CookieService {
@@ -11,43 +12,43 @@ export class CookieService {
     private readonly databaseService: DatabaseService
   ) {}
 
-  async ValidateRefreshTokenInCookie(request: Request): Promise<number> {
+  async validateRefreshTokenInCookie(request: Request): Promise<number> {
     try {
-      const { cookies } = request;
+      const { jwt: refreshToken } = request.cookies;
 
-      if (!cookies) throw new UnauthorizedException();
-
-      const { jwt } = cookies;
-
-      if (!jwt) throw new UnauthorizedException();
-
-      const refreshToken = request.cookies.jwt;
-
-      try {
-        const { userId } = this.authenticationService.verifyRefreshToken(
-          refreshToken
-        ) as IRefreshPayload;
-
-        if (!userId) throw new UnauthorizedException();
-
-        const UserInstanceInDB = await this.databaseService.runQuery(
-          `SELECT * FROM users WHERE id = ${userId}`
-        );
-
-        const user = UserInstanceInDB.rows[0];
-
-        if (!user) {
-          throw new UnauthorizedException('Unauthorized');
-        }
-
-        return user.id;
-      } catch (error) {
-        console.log(error);
-        throw error;
+      if (!refreshToken) {
+        throw new UnauthorizedException();
       }
+
+      const { userId } = this.verifyRefreshToken(refreshToken);
+
+      const user = await this.databaseService.findUserById(userId);
+
+      if (!user) {
+        throw new UnauthorizedException('Unauthorized');
+      }
+
+      return user.id;
     } catch (error) {
-      console.log(error);
-      throw error;
+      throw new UnauthorizedException('Unauthorized');
     }
+  }
+
+  private verifyRefreshToken(refreshToken: string): IRefreshPayload {
+    return this.authenticationService.verifyRefreshToken(
+      refreshToken
+    ) as IRefreshPayload;
+  }
+
+  setCookie({ response, refreshToken }: ISetCookieInterface): void {
+    response.cookie('jwt', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+  }
+
+  unsetCookie(response: Response): void {
+    response.clearCookie('jwt');
   }
 }
