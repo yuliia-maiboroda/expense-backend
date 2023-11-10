@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Pool } from 'postgres-pool';
 import { PG_CONNECTION } from 'src/common/constants';
+import { DefaultCategory, UserCategory } from 'src/models/categories';
 import { User } from 'src/models/users';
 import { UserRegistrationDto } from 'src/users/dto';
 
@@ -68,5 +69,20 @@ export class DatabaseService {
     const userInstance = await this.pool.query(query);
 
     return userInstance.rows[0];
+  }
+
+  async getDefaultCategories(): Promise<DefaultCategory[]> {
+    const categories = await this.pool.query(
+      'SELECT * FROM default_categories'
+    );
+    return categories.rows;
+  }
+
+  async setInitCategoriesForUser(id: number): Promise<UserCategory[]> {
+    const categories = await this.pool.query(
+      'INSERT INTO categories ( label, type, owner, ismutable) SELECT label, type, $1, ismutable FROM default_categories RETURNING *',
+      [id]
+    );
+    return categories.rows;
   }
 }
