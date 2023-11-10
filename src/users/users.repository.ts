@@ -60,6 +60,8 @@ export class UsersRepository {
         RETURNING_COLUMNS
       );
 
+      await this.databaseService.setInitCategoriesForUser(result.id);
+
       return result;
     } catch (error) {
       throw new DatabaseErrorException();
