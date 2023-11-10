@@ -15,25 +15,18 @@ export class CategoriesRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async getAll(userId: number): Promise<UserCategory[]> {
-    const categories = await this.databaseService.getUsersCategories(userId);
-    return categories;
+    return await this.databaseService.getUsersCategories(userId);
   }
 
   async create(
     categoryData: CreateCategoryDto,
     userId: number
   ): Promise<UserCategory> {
-    const existingUsersCategories =
-      await this.databaseService.getUsersCategories(userId);
-
-    const repeatedCategory = existingUsersCategories.find(
-      category =>
-        category.label === categoryData.label &&
-        category.type === categoryData.type
+    await this.checkForDuplicateCategory(
+      categoryData.label,
+      categoryData.type,
+      userId
     );
-
-    if (repeatedCategory)
-      throw new ConflictException('Category already exists');
 
     const category = await this.databaseService.createCategory(
       categoryData,
@@ -48,27 +41,19 @@ export class CategoriesRepository {
     categoryId: number,
     userId: number
   ): Promise<UserCategory> {
-    const categoryInstance: UserCategory =
-      await this.databaseService.getCategoryById(categoryId);
-
-    if (!categoryInstance) throw new NotFoundException('Category not found');
-
-    if (!categoryInstance.ismutable) throw new ForbiddenException('Forbidden');
-
-    if (categoryInstance.owner !== userId)
-      throw new ForbiddenException('Forbidden');
-
-    const existingUsersCategories =
-      await this.databaseService.getUsersCategories(userId);
-
-    const repeatedCategory = existingUsersCategories.find(
-      category =>
-        category.label === categoryData.label &&
-        category.type === categoryData.type
+    const categoryInstance: UserCategory = await this.getCategoryInstance(
+      categoryId,
+      userId
     );
 
-    if (repeatedCategory)
-      throw new ConflictException('Category already exists');
+    this.checkForDuplicateCategory(
+      categoryData.label,
+      categoryData.type,
+      userId,
+      categoryId
+    );
+
+    await this.validateCategoryAction(categoryInstance);
 
     const { label = categoryInstance.label, type = categoryInstance.type } =
       categoryData;
@@ -83,15 +68,12 @@ export class CategoriesRepository {
   }
 
   async delete(categoryId: number, userId: number): Promise<void> {
-    const categoryInstance: UserCategory =
-      await this.databaseService.getCategoryById(categoryId);
+    const categoryInstance: UserCategory = await this.getCategoryInstance(
+      categoryId,
+      userId
+    );
 
-    if (!categoryInstance) throw new NotFoundException('Category not found');
-
-    if (!categoryInstance.ismutable) throw new ForbiddenException('Forbidden');
-
-    if (categoryInstance.owner !== userId)
-      throw new ForbiddenException('Forbidden');
+    await this.validateCategoryAction(categoryInstance);
 
     const dependentTransactions = await this.databaseService.getRowsFromTable(
       'transactions',
@@ -100,13 +82,7 @@ export class CategoriesRepository {
     );
 
     if (dependentTransactions.length > 0) {
-      const newCategoryForDeletedTransactions =
-        await this.databaseService.getDefaultUserCategory(userId);
-
-      await this.databaseService.setNewCategoryForTransaction(
-        newCategoryForDeletedTransactions.id,
-        categoryId
-      );
+      this.handleDependentTransactions(categoryId, userId);
     }
 
     await this.databaseService.deleteRowFromTable(
@@ -116,14 +92,70 @@ export class CategoriesRepository {
     );
   }
   async getById(categoryId: number, userId: number): Promise<UserCategory> {
-    const categoryInstance: UserCategory =
-      await this.databaseService.getCategoryById(categoryId);
-
-    if (!categoryInstance) throw new NotFoundException('Category not found');
-
-    if (categoryInstance.owner !== userId)
-      throw new ForbiddenException('Forbidden');
+    const categoryInstance: UserCategory = await this.getCategoryInstance(
+      categoryId,
+      userId
+    );
 
     return categoryInstance;
+  }
+
+  private async getCategoryInstance(
+    categoryId: number,
+    userId: number
+  ): Promise<UserCategory> {
+    const categoryInstance =
+      await this.databaseService.getCategoryById(categoryId);
+
+    if (!categoryInstance) {
+      throw new NotFoundException('Category not found');
+    }
+
+    if (categoryInstance.owner !== userId) {
+      throw new ForbiddenException('Forbidden');
+    }
+
+    return categoryInstance;
+  }
+
+  private async validateCategoryAction(
+    categoryInstance: UserCategory
+  ): Promise<void> {
+    if (!categoryInstance.ismutable) {
+      throw new ForbiddenException(`Forbidden: `);
+    }
+  }
+  private async checkForDuplicateCategory(
+    label: string,
+    type: string,
+    userId: number,
+    categoryId?: number
+  ): Promise<void> {
+    const existingUsersCategories =
+      await this.databaseService.getUsersCategories(userId);
+
+    const repeatedCategory = existingUsersCategories.find(
+      category =>
+        category.label === label &&
+        category.type === type &&
+        category.id !== categoryId
+    );
+
+    if (repeatedCategory) {
+      throw new ConflictException('Category already exists');
+    }
+  }
+
+  private async handleDependentTransactions(
+    categoryId: number,
+    userId: number
+  ): Promise<void> {
+    const newCategoryForDeletedTransactions =
+      await this.databaseService.getDefaultUserCategory(userId);
+
+    await this.databaseService.setNewCategoryForTransaction(
+      newCategoryForDeletedTransactions.id,
+      categoryId
+    );
   }
 }

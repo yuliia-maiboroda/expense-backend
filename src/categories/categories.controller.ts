@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+
 import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
 import { RequestWithUserInterface } from 'src/common/interfaces';
