@@ -40,16 +40,22 @@ export class DatabaseService {
     table: string,
     label: string,
     value: number | string,
+    additionalLabel?: string,
+    additionalValue?: number | string,
     returningColumns: string[] = []
   ): Promise<any> {
     const selectedColumns =
       returningColumns.length > 0 ? returningColumns.join(', ') : ' *';
 
     const result = await this.pool.query(
-      `SELECT ${selectedColumns} FROM ${table} WHERE ${label} = $1 ;`,
+      `SELECT ${selectedColumns} FROM ${table} WHERE ${label} = $1 ${
+        additionalLabel
+          ? 'AND ' + additionalLabel + ' = ' + additionalValue
+          : ''
+      };`,
       [value]
     );
-    return result.rows[0];
+    return result.rows;
   }
 
   async findUserById(userId: number): Promise<User> {
@@ -168,5 +174,23 @@ export class DatabaseService {
       [categoryId]
     );
     return categoryInstance.rows[0];
+  }
+
+  async setNewCategoryForTransaction(
+    newCategoryId: number,
+    oldCategoryid: number
+  ): Promise<void> {
+    await this.pool.query(
+      'UPDATE transactions SET category = $1 WHERE category = $2',
+      [newCategoryId, oldCategoryid]
+    );
+  }
+
+  async getDefaultUserCategory(userId: number): Promise<UserCategory> {
+    const categories = await this.pool.query(
+      'SELECT * FROM categories WHERE owner = $1 AND ismutable = false AND label = $2',
+      [userId, 'Others']
+    );
+    return categories.rows[0];
   }
 }

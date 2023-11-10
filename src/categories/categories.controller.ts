@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -47,5 +48,23 @@ export class CategoriesController {
       categoryId,
       req.user.id
     );
+  }
+
+  @Delete('/:categoryId')
+  @HttpCode(204)
+  async delete(
+    @Req() req: RequestWithUserInterface,
+    @Param('categoryId') categoryId: number
+  ): Promise<void> {
+    await this.categoriesService.deleteUsersCategory(categoryId, req.user.id);
+  }
+
+  @Get('/:categoryId')
+  @HttpCode(200)
+  async getCategory(
+    @Req() req: RequestWithUserInterface,
+    @Param('categoryId') categoryId: number
+  ): Promise<UserCategory> {
+    return this.categoriesService.getCategoryById(categoryId, req.user.id);
   }
 }

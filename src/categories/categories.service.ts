@@ -25,4 +25,15 @@ export class CategoriesService {
   ): Promise<UserCategory> {
     return this.categoriesRepository.update(data, categoryId, userId);
   }
+
+  async deleteUsersCategory(categoryId: number, userId: number): Promise<void> {
+    await this.categoriesRepository.delete(categoryId, userId);
+  }
+
+  async getCategoryById(
+    categoryId: number,
+    userId: number
+  ): Promise<UserCategory> {
+    return this.categoriesRepository.getById(categoryId, userId);
+  }
 }

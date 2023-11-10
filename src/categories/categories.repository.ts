@@ -81,4 +81,49 @@ export class CategoriesRepository {
 
     return updatedCategory;
   }
+
+  async delete(categoryId: number, userId: number): Promise<void> {
+    const categoryInstance: UserCategory =
+      await this.databaseService.getCategoryById(categoryId);
+
+    if (!categoryInstance) throw new NotFoundException('Category not found');
+
+    if (!categoryInstance.ismutable) throw new ForbiddenException('Forbidden');
+
+    if (categoryInstance.owner !== userId)
+      throw new ForbiddenException('Forbidden');
+
+    const dependentTransactions = await this.databaseService.getRowsFromTable(
+      'transactions',
+      'category',
+      categoryId
+    );
+
+    if (dependentTransactions.length > 0) {
+      const newCategoryForDeletedTransactions =
+        await this.databaseService.getDefaultUserCategory(userId);
+
+      await this.databaseService.setNewCategoryForTransaction(
+        newCategoryForDeletedTransactions.id,
+        categoryId
+      );
+    }
+
+    await this.databaseService.deleteRowFromTable(
+      'categories',
+      'id',
+      categoryId
+    );
+  }
+  async getById(categoryId: number, userId: number): Promise<UserCategory> {
+    const categoryInstance: UserCategory =
+      await this.databaseService.getCategoryById(categoryId);
+
+    if (!categoryInstance) throw new NotFoundException('Category not found');
+
+    if (categoryInstance.owner !== userId)
+      throw new ForbiddenException('Forbidden');
+
+    return categoryInstance;
+  }
 }
