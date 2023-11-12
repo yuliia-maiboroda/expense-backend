@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ROLES } from 'src/models/users';
+import { ROLE_OF_USER } from 'src/models/users';
 
 class UserProperties {
   @ApiProperty({
@@ -22,9 +22,9 @@ class UserProperties {
 
   @ApiProperty({
     description: 'User role',
-    type: String,
+    enum: ROLE_OF_USER,
   })
-  role: string;
+  role: keyof typeof ROLE_OF_USER;
 }
 
 export class UserEntities {
@@ -36,7 +36,7 @@ export class UserEntities {
     id: number;
     username: string;
     displayname: string;
-    role: ROLES;
+    role: keyof typeof ROLE_OF_USER;
   };
 
   @ApiProperty({

@@ -107,13 +107,9 @@ export class CategoriesRepository {
     const categoryInstance =
       await this.databaseService.getCategoryById(categoryId);
 
-    if (!categoryInstance) {
-      throw new NotFoundException('Category not found');
-    }
+    if (!categoryInstance) throw new NotFoundException();
 
-    if (categoryInstance.owner !== userId) {
-      throw new ForbiddenException('Forbidden');
-    }
+    if (categoryInstance.owner !== userId) throw new ForbiddenException();
 
     return categoryInstance;
   }
@@ -121,9 +117,7 @@ export class CategoriesRepository {
   private async validateCategoryAction(
     categoryInstance: UserCategory
   ): Promise<void> {
-    if (!categoryInstance.ismutable) {
-      throw new ForbiddenException(`Forbidden: `);
-    }
+    if (!categoryInstance.ismutable) throw new ForbiddenException();
   }
   private async checkForDuplicateCategory(
     label: string,
@@ -141,9 +135,8 @@ export class CategoriesRepository {
         category.id !== categoryId
     );
 
-    if (repeatedCategory) {
+    if (repeatedCategory)
       throw new ConflictException('Category already exists');
-    }
   }
 
   private async handleDependentTransactions(

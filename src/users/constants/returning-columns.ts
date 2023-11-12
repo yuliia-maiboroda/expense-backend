@@ -4,4 +4,5 @@ export const RETURNING_COLUMNS = [
   'displayname',
   'role',
   'sessionid',
+  'refreshid',
 ];
