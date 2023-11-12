@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     displayname VARCHAR(50) NOT NULL,
     role VARCHAR(10) CHECK (role IN ('user', 'admin')) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    sessionId UUID
+    sessionid UUID,
+    refreshid UUID
 );
 
 
@@ -14,10 +15,10 @@ CREATE TABLE IF NOT EXISTS default_categories (
     id SERIAL PRIMARY KEY,
     label VARCHAR(50) NOT NULL,
     type VARCHAR(10) CHECK (type IN ('income', 'expense')) NOT NULL,
-    isMutable BOOLEAN NOT NULL DEFAULT true
+    ismutable BOOLEAN NOT NULL DEFAULT true
 );
 
-INSERT INTO default_categories (label, type, isMutable)
+INSERT INTO default_categories (label, type, ismutable)
 VALUES ('Salary', 'income', true),
        ('Food', 'expense', true),
        ('Groceries', 'expense', true),

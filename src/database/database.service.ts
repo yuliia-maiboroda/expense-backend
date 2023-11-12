@@ -80,13 +80,12 @@ export class DatabaseService {
   ): Promise<User> {
     try {
       const { username, displayname, password } = data;
-      const sessionId = 'uuid_generate_v4()';
       const returningClause =
         returningColumns.length > 0
           ? `RETURNING ${returningColumns.join(', ')}`
           : 'RETURNING *';
 
-      const query = `INSERT INTO users (username, displayname, password, sessionId, role) VALUES ($1, $2, $3, ${sessionId}, 'user') ${returningClause};`;
+      const query = `INSERT INTO users (username, displayname, password, sessionid, role, refreshid) VALUES ($1, $2, $3, uuid_generate_v4(), 'user', uuid_generate_v4()) ${returningClause};`;
       const userInstance = await this.pool.query(query, [
         username,
         displayname,
@@ -99,19 +98,38 @@ export class DatabaseService {
     }
   }
 
-  async updateUserSessionId(
+  async updateUserSessionAndRefreshId(
     userId: number,
     returningColumns: string[] = []
   ): Promise<User> {
     const sessionId = 'uuid_generate_v4()';
+    const refreshId = 'uuid_generate_v4()';
 
-    const query = `UPDATE users SET sessionId = ${sessionId} WHERE id = ${userId} ${
+    const query = `UPDATE users SET sessionid = ${sessionId}, refreshid = ${refreshId} WHERE id = ${userId} ${
       returningColumns.length > 0
         ? `RETURNING ${returningColumns.join(', ')}`
         : 'RETURNING *'
-    }    ;`;
+    };`;
 
     const userInstance = await this.pool.query(query);
+
+    return userInstance.rows[0];
+  }
+
+  async setSessionIdNull(userId: number): Promise<void> {
+    await this.pool.query(
+      `UPDATE users SET sessionid = null WHERE id = ${userId};`
+    );
+  }
+
+  async updateUserPassword(
+    userId: number,
+    password: string
+  ): Promise<{ sessionid: string; refreshid: string }> {
+    const userInstance = await this.pool.query(
+      'UPDATE users SET password = $1, sessionid = uuid_generate_v4(), refreshid = uuid_generate_v4() WHERE id = $2 RETURNING sessionid, refreshid;',
+      [password, userId]
+    );
 
     return userInstance.rows[0];
   }

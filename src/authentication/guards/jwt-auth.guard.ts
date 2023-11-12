@@ -46,11 +46,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private verifyToken(token: string): IPayload {
-    const decodedToken = this.jwtService.verifyAccessToken(token);
+    try {
+      const decodedToken = this.jwtService.verifyAccessToken(token);
+      if (!decodedToken) throw new UnauthorizedException('Unauthorized');
 
-    if (!decodedToken) throw new UnauthorizedException('Unauthorized');
-
-    return decodedToken as IPayload;
+      return decodedToken as IPayload;
+    } catch (error) {
+      throw new UnauthorizedException('Unauthorized');
+    }
   }
 
   private async getUserFromDatabase(userId: number) {

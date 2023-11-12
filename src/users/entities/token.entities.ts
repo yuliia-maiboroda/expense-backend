@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ResreshEntities {
+export class TokenEntities {
   @ApiProperty({
     description: 'Access token',
     type: String,

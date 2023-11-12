@@ -16,17 +16,16 @@ export class CookieService {
     try {
       const { jwt: refreshToken } = request.cookies;
 
-      if (!refreshToken) {
-        throw new UnauthorizedException();
-      }
+      if (!refreshToken) throw new UnauthorizedException();
 
-      const { userId } = this.verifyRefreshToken(refreshToken);
+      const { userId, refreshId } = this.verifyRefreshToken(refreshToken);
 
       const user = await this.databaseService.findUserById(userId);
 
-      if (!user) {
+      if (!user) throw new UnauthorizedException('Unauthorized');
+
+      if (user.refreshid !== refreshId)
         throw new UnauthorizedException('Unauthorized');
-      }
 
       return user.id;
     } catch (error) {
@@ -35,9 +34,17 @@ export class CookieService {
   }
 
   private verifyRefreshToken(refreshToken: string): IRefreshPayload {
-    return this.authenticationService.verifyRefreshToken(
-      refreshToken
-    ) as IRefreshPayload;
+    try {
+      const decodedToken = this.authenticationService.verifyRefreshToken(
+        refreshToken
+      ) as IRefreshPayload;
+
+      if (!decodedToken) throw new UnauthorizedException('Unauthorized');
+
+      return decodedToken;
+    } catch (error) {
+      throw new UnauthorizedException('Unauthorized');
+    }
   }
 
   setCookie({ response, refreshToken }: ISetCookieInterface): void {

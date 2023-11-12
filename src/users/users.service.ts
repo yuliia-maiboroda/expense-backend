@@ -30,10 +30,16 @@ export class UsersService {
 
     const refreshToken = this.authenticationService.generateRefreshToken({
       userId: userInstanse.id,
+      refreshId: userInstanse.refreshid,
     });
 
     return {
-      user: userInstanse,
+      user: {
+        id: userInstanse.id,
+        username: userInstanse.username,
+        displayname: userInstanse.displayname,
+        role: userInstanse.role,
+      },
       accessToken,
       refreshToken,
     };
@@ -51,10 +57,16 @@ export class UsersService {
 
       const refreshToken = this.authenticationService.generateRefreshToken({
         userId: userInstanse.id,
+        refreshId: userInstanse.refreshid,
       });
 
       return {
-        user: userInstanse,
+        user: {
+          id: userInstanse.id,
+          username: userInstanse.username,
+          displayname: userInstanse.displayname,
+          role: userInstanse.role,
+        },
         accessToken,
         refreshToken,
       };
@@ -82,6 +94,34 @@ export class UsersService {
 
     const refreshToken = this.authenticationService.generateRefreshToken({
       userId: userInstanse.id,
+      refreshId: userInstanse.refreshid,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async changePassword(
+    id: number,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const refreshAndSessionId = await this.usersRepository.changePassword(
+      id,
+      oldPassword,
+      newPassword
+    );
+
+    const accessToken = this.authenticationService.generateAccessToken({
+      userId: id,
+      sessionId: refreshAndSessionId.sessionid,
+    });
+
+    const refreshToken = this.authenticationService.generateRefreshToken({
+      userId: id,
+      refreshId: refreshAndSessionId.refreshid,
     });
 
     return {

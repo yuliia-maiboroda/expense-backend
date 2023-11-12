@@ -8,87 +8,99 @@ import bcrypt from 'bcrypt';
 
 import { DatabaseService } from 'src/database/database.service';
 import { UserLoginDto, UserRegistrationDto } from './dto';
-import { UserProperties } from '../models/users/user.schema';
+import { User, UserProperties } from '../models/users/user.schema';
 import { RETURNING_COLUMNS } from './constants';
-import { DatabaseErrorException } from 'src/common/helpers';
 
 @Injectable()
 export class UsersRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async create(userData: UserRegistrationDto): Promise<UserProperties> {
-    try {
-      const hashPassword = await bcrypt.hash(userData.password, 10);
+    const hashPassword = await bcrypt.hash(userData.password, 10);
 
-      const isUserWithUsername = await this.databaseService.findUserByUsername(
-        userData.username
-      );
+    await this.ensureUniqueUsername(userData.username);
 
-      if (isUserWithUsername) throw new ConflictException();
+    const result = await this.databaseService.createUser(
+      {
+        ...userData,
+        password: hashPassword,
+      },
+      RETURNING_COLUMNS
+    );
 
-      const result = await this.databaseService.createUser(
-        {
-          ...userData,
-          password: hashPassword,
-        },
-        RETURNING_COLUMNS
-      );
+    await this.databaseService.setInitCategoriesForUser(result.id);
 
-      return result;
-    } catch (error) {
-      throw new DatabaseErrorException();
-    }
+    return result;
   }
 
   async login(userData: UserLoginDto): Promise<UserProperties> {
-    try {
-      const isUserWithUsername = await this.databaseService.findUserByUsername(
-        userData.username
-      );
+    const user = await this.findUserByUsername(userData.username);
 
-      if (!isUserWithUsername) throw new NotFoundException();
+    this.throwNotFoundIfNull(user);
 
-      const isValidPassword = await bcrypt.compare(
-        userData.password,
-        isUserWithUsername.password
-      );
+    await this.validatePassword(userData.password, user.password);
 
-      if (!isValidPassword) throw new UnauthorizedException();
+    const result = await this.databaseService.updateUserSessionAndRefreshId(
+      user.id,
+      RETURNING_COLUMNS
+    );
 
-      const result = await this.databaseService.updateUserSessionId(
-        isUserWithUsername.id,
-        RETURNING_COLUMNS
-      );
-
-      await this.databaseService.setInitCategoriesForUser(result.id);
-
-      return result;
-    } catch (error) {
-      throw new DatabaseErrorException();
-    }
+    return result;
   }
 
   async logout(id: number): Promise<void> {
-    try {
-      await this.databaseService.updateUserSessionId(id);
-    } catch (error) {
-      throw new DatabaseErrorException();
-    }
+    await this.databaseService.setSessionIdNull(id);
   }
 
   async refreshToken(id: number): Promise<UserProperties> {
-    try {
-      const userInstanseOrNull = await this.databaseService.findUserById(id);
+    const user = await this.findUserById(id);
 
-      if (!userInstanseOrNull) throw new NotFoundException();
+    return await this.databaseService.updateUserSessionAndRefreshId(user.id);
+  }
 
-      if (!userInstanseOrNull.sessionid) throw new UnauthorizedException();
+  async changePassword(
+    id: number,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<{ sessionid: string; refreshid: string }> {
+    const userInstance = await this.findUserById(id);
 
-      const result = await this.databaseService.updateUserSessionId(id);
+    await this.validatePassword(oldPassword, userInstance.password);
 
-      return result;
-    } catch (error) {
-      throw new DatabaseErrorException();
-    }
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+
+    return await this.databaseService.updateUserPassword(id, hashPassword);
+  }
+
+  private async ensureUniqueUsername(username: string): Promise<void> {
+    const isUserWithUsername =
+      await this.databaseService.findUserByUsername(username);
+    if (isUserWithUsername)
+      throw new ConflictException('Username is already taken');
+  }
+
+  private async findUserByUsername(username: string): Promise<User | null> {
+    return await this.databaseService.findUserByUsername(username);
+  }
+
+  private async findUserById(id: number): Promise<User | null> {
+    const user = await this.databaseService.findUserById(id);
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
+  }
+
+  private throwNotFoundIfNull(user: User | null): void {
+    if (!user) throw new NotFoundException('User not found');
+  }
+
+  private async validatePassword(
+    passFromData: string,
+    passFromDB: string
+  ): Promise<void> {
+    const isValidPassword = await bcrypt.compare(passFromData, passFromDB);
+
+    if (!isValidPassword) throw new UnauthorizedException('Invalid password');
   }
 }

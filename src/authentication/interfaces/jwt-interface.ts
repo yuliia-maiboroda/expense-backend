@@ -5,4 +5,5 @@ export interface IPayload {
 
 export interface IRefreshPayload {
   userId: number;
+  refreshId: string;
 }

@@ -1,2 +1,2 @@
 export * from './user.entities';
-export * from './refresh.entities';
+export * from './token.entities';

@@ -16,11 +16,11 @@ import {
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 
-import { UserLoginDto, UserRegistrationDto } from './dto';
+import { ChangePasswordDto, UserLoginDto, UserRegistrationDto } from './dto';
 import { UsersService } from './users.service';
 import { CookieService } from 'src/cookie/cookie.service';
 import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
-import { ResreshEntities, UserEntities } from './entities';
+import { TokenEntities, UserEntities } from './entities';
 import { RequestWithUserInterface } from 'src/common/interfaces/request.interface';
 
 @ApiTags('Users')
@@ -110,16 +110,47 @@ export class UsersController {
   })
   @ApiResponse({
     status: 200,
-    type: ResreshEntities,
+    type: TokenEntities,
   })
   @Post('/refresh')
   @HttpCode(200)
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) response: Response
-  ): Promise<ResreshEntities> {
+  ): Promise<TokenEntities> {
     const { accessToken, refreshToken } =
       await this.usersService.refreshToken(req);
+
+    this.cookieService.setCookie({
+      response,
+      refreshToken,
+    });
+
+    return { accessToken };
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Change a user password',
+  })
+  @ApiResponse({
+    status: 200,
+    type: TokenEntities,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Post('/change-password')
+  @HttpCode(200)
+  async changePassword(
+    @Req() req: RequestWithUserInterface,
+    @Body() userData: ChangePasswordDto,
+    @Res({ passthrough: true }) response: Response
+  ): Promise<TokenEntities> {
+    const { accessToken, refreshToken } =
+      await this.usersService.changePassword(
+        req.user.id,
+        userData.oldPassword,
+        userData.newPassword
+      );
 
     this.cookieService.setCookie({
       response,
