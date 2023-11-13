@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersRepository } from './users.repository';
-import { UserLoginDto, UserRegistrationDto } from './dto';
+import { ChangePasswordDto, UserLoginDto, UserRegistrationDto } from './dto';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import {
   UserEntitiesWithToken,
@@ -17,11 +17,14 @@ export class UsersService {
     private readonly cookieService: CookieService
   ) {}
 
-  async register(
-    userData: UserRegistrationDto
-  ): Promise<UserEntitiesWithToken> {
-    const userInstanse: UserProperties =
-      await this.usersRepository.create(userData);
+  async register({
+    userData,
+  }: {
+    userData: UserRegistrationDto;
+  }): Promise<UserEntitiesWithToken> {
+    const userInstanse: UserProperties = await this.usersRepository.create({
+      userData,
+    });
 
     const accessToken = this.authenticationService.generateAccessToken({
       userId: userInstanse.id,
@@ -45,10 +48,15 @@ export class UsersService {
     };
   }
 
-  async login(userData: UserLoginDto): Promise<UserEntitiesWithToken> {
+  async login({
+    userData,
+  }: {
+    userData: UserLoginDto;
+  }): Promise<UserEntitiesWithToken> {
     try {
-      const userInstanse: UserProperties =
-        await this.usersRepository.login(userData);
+      const userInstanse: UserProperties = await this.usersRepository.login({
+        userData,
+      });
 
       const accessToken = this.authenticationService.generateAccessToken({
         userId: userInstanse.id,
@@ -75,8 +83,8 @@ export class UsersService {
     }
   }
 
-  async logout(id: number): Promise<void> {
-    this.usersRepository.logout(id);
+  async logout({ userId }: { userId: number }): Promise<void> {
+    this.usersRepository.logout({ id: userId });
   }
 
   async refreshToken(
@@ -85,7 +93,7 @@ export class UsersService {
     const id = await this.cookieService.validateRefreshTokenInCookie(request);
 
     const userInstanse: UserProperties =
-      await this.usersRepository.refreshToken(id);
+      await this.usersRepository.refreshToken({ id });
 
     const accessToken = this.authenticationService.generateAccessToken({
       userId: userInstanse.id,
@@ -103,16 +111,20 @@ export class UsersService {
     };
   }
 
-  async changePassword(
-    id: number,
-    oldPassword: string,
-    newPassword: string
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const refreshAndSessionId = await this.usersRepository.changePassword(
+  async changePassword({
+    id,
+    data: { oldPassword, newPassword },
+  }: {
+    id: number;
+    data: ChangePasswordDto;
+  }): Promise<{ accessToken: string; refreshToken: string }> {
+    const refreshAndSessionId = await this.usersRepository.changePassword({
       id,
-      oldPassword,
-      newPassword
-    );
+      data: {
+        oldPassword,
+        newPassword,
+      },
+    });
 
     const accessToken = this.authenticationService.generateAccessToken({
       userId: id,
