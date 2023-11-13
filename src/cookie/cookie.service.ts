@@ -20,7 +20,7 @@ export class CookieService {
 
       const { userId, refreshId } = this.verifyRefreshToken(refreshToken);
 
-      const user = await this.databaseService.findUserById(userId);
+      const user = await this.databaseService.findUserById({ userId });
 
       if (!user) throw new UnauthorizedException('Unauthorized');
 

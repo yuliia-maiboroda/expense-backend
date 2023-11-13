@@ -27,10 +27,10 @@ export class CategoriesRepository {
       userId
     );
 
-    const category = await this.databaseService.createCategory(
-      categoryData,
-      userId
-    );
+    const category = await this.databaseService.createCategory({
+      data: categoryData,
+      userId,
+    });
 
     return category;
   }
@@ -57,11 +57,11 @@ export class CategoriesRepository {
     const { label = categoryInstance.label, type = categoryInstance.type } =
       categoryData;
 
-    const updatedCategory = await this.databaseService.updateCategory(
-      { label, type },
+    const updatedCategory = await this.databaseService.updateCategory({
+      data: { label, type },
       categoryId,
-      userId
-    );
+      userId,
+    });
 
     return updatedCategory;
   }
@@ -74,21 +74,21 @@ export class CategoriesRepository {
 
     await this.validateCategoryAction(categoryInstance);
 
-    const dependentTransactions = await this.databaseService.getRowsFromTable(
-      'transactions',
-      'category',
-      categoryId
-    );
+    const dependentTransactions = await this.databaseService.getRowsFromTable({
+      table: 'transactions',
+      label: 'category',
+      value: categoryId,
+    });
 
     if (dependentTransactions.length > 0) {
       this.handleDependentTransactions(categoryId, userId);
     }
 
-    await this.databaseService.deleteRowFromTable(
-      'categories',
-      'id',
-      categoryId
-    );
+    await this.databaseService.deleteRowFromTable({
+      table: 'categories',
+      label: 'id',
+      value: categoryId,
+    });
   }
 
   async getById(categoryId: number, userId: number): Promise<UserCategory> {
@@ -146,9 +146,9 @@ export class CategoriesRepository {
     const newCategoryForDeletedTransactions =
       await this.databaseService.getDefaultUserCategory(userId);
 
-    await this.databaseService.setNewCategoryForTransaction(
-      newCategoryForDeletedTransactions.id,
-      categoryId
-    );
+    await this.databaseService.setNewCategoryForTransaction({
+      newCategoryId: newCategoryForDeletedTransactions.id,
+      oldCategoryid: categoryId,
+    });
   }
 }

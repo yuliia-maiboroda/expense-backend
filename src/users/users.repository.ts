@@ -20,13 +20,13 @@ export class UsersRepository {
 
     await this.ensureUniqueUsername(userData.username);
 
-    const result = await this.databaseService.createUser(
-      {
+    const result = await this.databaseService.createUser({
+      data: {
         ...userData,
         password: hashPassword,
       },
-      RETURNING_COLUMNS
-    );
+      returningColumns: RETURNING_COLUMNS,
+    });
 
     await this.databaseService.setInitCategoriesForUser(result.id);
 
@@ -40,10 +40,10 @@ export class UsersRepository {
 
     await this.validatePassword(userData.password, user.password);
 
-    const result = await this.databaseService.updateUserSessionAndRefreshId(
-      user.id,
-      RETURNING_COLUMNS
-    );
+    const result = await this.databaseService.updateUserSessionAndRefreshId({
+      userId: user.id,
+      returningColumns: RETURNING_COLUMNS,
+    });
 
     return result;
   }
@@ -55,7 +55,10 @@ export class UsersRepository {
   async refreshToken(id: number): Promise<UserProperties> {
     const user = await this.findUserById(id);
 
-    return await this.databaseService.updateUserSessionAndRefreshId(user.id);
+    return await this.databaseService.updateUserSessionAndRefreshId({
+      userId: user.id,
+      returningColumns: RETURNING_COLUMNS,
+    });
   }
 
   async changePassword(
@@ -69,30 +72,30 @@ export class UsersRepository {
 
     const hashPassword = await bcrypt.hash(newPassword, 10);
 
-    return await this.databaseService.updateUserPassword(id, hashPassword);
+    return await this.databaseService.updateUserPassword({
+      userId: id,
+      password: hashPassword,
+    });
   }
 
   private async ensureUniqueUsername(username: string): Promise<void> {
-    const isUserWithUsername =
-      await this.databaseService.findUserByUsername(username);
+    const isUserWithUsername = await this.databaseService.findUserByUsername({
+      username,
+    });
     if (isUserWithUsername)
       throw new ConflictException('Username is already taken');
   }
 
   private async findUserByUsername(username: string): Promise<User | null> {
-    return await this.databaseService.findUserByUsername(username);
+    return await this.databaseService.findUserByUsername({ username });
   }
 
-  private async findUserById(id: number): Promise<User | null> {
-    const user = await this.databaseService.findUserById(id);
+  private async findUserById(userId: number): Promise<User | null> {
+    const user = await this.databaseService.findUserById({ userId });
 
     if (!user) throw new NotFoundException('User not found');
 
     return user;
-  }
-
-  private throwNotFoundIfNull(user: User | null): void {
-    if (!user) throw new NotFoundException('User not found');
   }
 
   private async validatePassword(

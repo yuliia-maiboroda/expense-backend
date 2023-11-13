@@ -46,11 +46,11 @@ export class TransactionsRepository {
       categoryId
     );
 
-    return await this.databaseService.createTransaction(
-      { ...transactionData, date, amount },
+    return await this.databaseService.createTransaction({
+      data: { ...transactionData, date, amount },
       userId,
-      categoryId
-    );
+      categoryId,
+    });
   }
 
   async update(
@@ -84,21 +84,21 @@ export class TransactionsRepository {
       categoryId
     );
 
-    return await this.databaseService.updateTransaction(
-      { amount: newAmount, label, date, categoryId },
+    return await this.databaseService.updateTransaction({
+      data: { amount: newAmount, label, date, categoryId },
       transactionId,
-      userId
-    );
+      userId,
+    });
   }
 
   async delete(transactionId: number, userId: number): Promise<void> {
     await this.getTransactionInstance(transactionId, userId);
 
-    await this.databaseService.deleteRowFromTable(
-      'transactions',
-      'id',
-      transactionId
-    );
+    await this.databaseService.deleteRowFromTable({
+      table: 'transactions',
+      label: 'id',
+      value: transactionId,
+    });
   }
 
   private async checkForDuplicateTransaction(
@@ -150,7 +150,10 @@ export class TransactionsRepository {
     userId: number
   ): Promise<Transaction> {
     const transactionInstance =
-      await this.databaseService.getUserTransactionById(userId, transactionId);
+      await this.databaseService.getUserTransactionById({
+        userId,
+        transactionId,
+      });
 
     if (!transactionInstance) throw new NotFoundException();
 
