@@ -57,7 +57,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private async getUserFromDatabase(userId: number) {
-    const userInstanceInDB = await this.databaseService.findUserById(userId);
+    const userInstanceInDB = await this.databaseService.findUserById({
+      userId,
+    });
 
     if (!userInstanceInDB) throw new UnauthorizedException('Unauthorized');
 

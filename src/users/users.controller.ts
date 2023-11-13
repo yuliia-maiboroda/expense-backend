@@ -38,6 +38,14 @@ export class UsersController {
     status: 201,
     type: UserEntities,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User already exists',
+  })
   @Post('/register')
   @HttpCode(201)
   async register(
@@ -45,7 +53,7 @@ export class UsersController {
     @Res({ passthrough: true }) response: Response
   ): Promise<UserEntities> {
     const { accessToken, refreshToken, user } =
-      await this.usersService.register(userData);
+      await this.usersService.register({ userData });
 
     this.cookieService.setCookie({
       response,
@@ -65,14 +73,23 @@ export class UsersController {
     status: 200,
     type: UserEntities,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   @Post('/login')
   @HttpCode(200)
   async login(
     @Body() userData: UserLoginDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<UserEntities> {
-    const { accessToken, refreshToken, user } =
-      await this.usersService.login(userData);
+    const { accessToken, refreshToken, user } = await this.usersService.login({
+      userData,
+    });
 
     this.cookieService.setCookie({
       response,
@@ -92,6 +109,10 @@ export class UsersController {
   @ApiResponse({
     status: 204,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   @UseGuards(JwtAuthGuard)
   @Post('/logout')
   @HttpCode(204)
@@ -99,7 +120,7 @@ export class UsersController {
     @Req() req: RequestWithUserInterface,
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
-    this.usersService.logout(req.user.id);
+    this.usersService.logout({ userId: req.user.id });
 
     this.cookieService.unsetCookie(response);
   }
@@ -111,6 +132,10 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     type: TokenEntities,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
   })
   @Post('/refresh')
   @HttpCode(200)
@@ -137,6 +162,14 @@ export class UsersController {
     status: 200,
     type: TokenEntities,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   @UseGuards(JwtAuthGuard)
   @Post('/change-password')
   @HttpCode(200)
@@ -146,11 +179,10 @@ export class UsersController {
     @Res({ passthrough: true }) response: Response
   ): Promise<TokenEntities> {
     const { accessToken, refreshToken } =
-      await this.usersService.changePassword(
-        req.user.id,
-        userData.oldPassword,
-        userData.newPassword
-      );
+      await this.usersService.changePassword({
+        id: req.user.id,
+        data: userData,
+      });
 
     this.cookieService.setCookie({
       response,

@@ -7,66 +7,58 @@ import {
 
 import { DatabaseService } from 'src/database/database.service';
 import { UserCategory } from 'src/models/categories';
-import { UpdateCategoryDto, CreateCategoryDto } from './dto';
+import {
+  ICreateCategory,
+  IUpdateCategory,
+  IUserAndCategoryIds,
+} from './interfaces';
 
 @Injectable()
 export class CategoriesRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async getAll(userId: number): Promise<UserCategory[]> {
+  async getAll({ userId }: { userId: number }): Promise<UserCategory[]> {
     return await this.databaseService.getUsersCategories(userId);
   }
 
-  async create(
-    categoryData: CreateCategoryDto,
-    userId: number
-  ): Promise<UserCategory> {
-    await this.checkForDuplicateCategory(
-      categoryData.label,
-      categoryData.type,
-      userId
-    );
+  async create({ data, userId }: ICreateCategory): Promise<UserCategory> {
+    await this.checkForDuplicateCategory(data.label, data.type, userId);
 
-    const category = await this.databaseService.createCategory(
-      categoryData,
-      userId
-    );
+    const category = await this.databaseService.createCategory({
+      data,
+      userId,
+    });
 
     return category;
   }
 
-  async update(
-    categoryData: UpdateCategoryDto,
-    categoryId: number,
-    userId: number
-  ): Promise<UserCategory> {
+  async update({
+    data,
+    categoryId,
+    userId,
+  }: IUpdateCategory): Promise<UserCategory> {
     const categoryInstance: UserCategory = await this.getCategoryInstance(
       categoryId,
       userId
     );
 
-    this.checkForDuplicateCategory(
-      categoryData.label,
-      categoryData.type,
-      userId,
-      categoryId
-    );
+    this.checkForDuplicateCategory(data.label, data.type, userId, categoryId);
 
     await this.validateCategoryAction(categoryInstance);
 
     const { label = categoryInstance.label, type = categoryInstance.type } =
-      categoryData;
+      data;
 
-    const updatedCategory = await this.databaseService.updateCategory(
-      { label, type },
+    const updatedCategory = await this.databaseService.updateCategory({
+      data: { label, type },
       categoryId,
-      userId
-    );
+      userId,
+    });
 
     return updatedCategory;
   }
 
-  async delete(categoryId: number, userId: number): Promise<void> {
+  async delete({ categoryId, userId }: IUserAndCategoryIds): Promise<void> {
     const categoryInstance: UserCategory = await this.getCategoryInstance(
       categoryId,
       userId
@@ -74,24 +66,27 @@ export class CategoriesRepository {
 
     await this.validateCategoryAction(categoryInstance);
 
-    const dependentTransactions = await this.databaseService.getRowsFromTable(
-      'transactions',
-      'category',
-      categoryId
-    );
+    const dependentTransactions = await this.databaseService.getRowsFromTable({
+      table: 'transactions',
+      label: 'category',
+      value: categoryId,
+    });
 
     if (dependentTransactions.length > 0) {
       this.handleDependentTransactions(categoryId, userId);
     }
 
-    await this.databaseService.deleteRowFromTable(
-      'categories',
-      'id',
-      categoryId
-    );
+    await this.databaseService.deleteRowFromTable({
+      table: 'categories',
+      label: 'id',
+      value: categoryId,
+    });
   }
 
-  async getById(categoryId: number, userId: number): Promise<UserCategory> {
+  async getById({
+    categoryId,
+    userId,
+  }: IUserAndCategoryIds): Promise<UserCategory> {
     const categoryInstance: UserCategory = await this.getCategoryInstance(
       categoryId,
       userId
@@ -146,9 +141,9 @@ export class CategoriesRepository {
     const newCategoryForDeletedTransactions =
       await this.databaseService.getDefaultUserCategory(userId);
 
-    await this.databaseService.setNewCategoryForTransaction(
-      newCategoryForDeletedTransactions.id,
-      categoryId
-    );
+    await this.databaseService.setNewCategoryForTransaction({
+      newCategoryId: newCategoryForDeletedTransactions.id,
+      oldCategoryid: categoryId,
+    });
   }
 }

@@ -8,56 +8,61 @@ import {
 
 import { DatabaseService } from 'src/database/database.service';
 import { Transaction } from 'src/models/transactions';
-import { CreateTransactionDto, UpdateTransactionDto } from './dto';
 import { TYPE_OF_CATEGORY } from 'src/models/categories';
+import {
+  ICreateTransaction,
+  IUpdateTransaction,
+  IUserAndTransactionsIds,
+} from './interfaces';
 
 @Injectable()
 export class TransactionsRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async getAll(userId: number): Promise<Transaction[]> {
+  async getAll({ userId }: { userId: number }): Promise<Transaction[]> {
     return await this.databaseService.getUsersTransactions(userId);
   }
 
-  async getById(transactionId: number, userId: number) {
+  async getById({
+    transactionId,
+    userId,
+  }: IUserAndTransactionsIds): Promise<Transaction> {
     return this.getTransactionInstance(transactionId, userId);
   }
 
-  async create(
-    transactionData: CreateTransactionDto,
-    userId: number,
-    categoryId: number
-  ): Promise<Transaction> {
-    const date = transactionData.date
-      ? new Date(transactionData.date)
-      : new Date();
+  async create({
+    data,
+    userId,
+    categoryId,
+  }: ICreateTransaction): Promise<Transaction> {
+    const date = data.date ? new Date(data.date) : new Date();
 
     const { amount } = await this.validateTransactionAmount(
       categoryId,
       userId,
-      transactionData.amount
+      data.amount
     );
 
     await this.checkForDuplicateTransaction(
-      transactionData.label,
+      data.label,
       amount,
       date,
       userId,
       categoryId
     );
 
-    return await this.databaseService.createTransaction(
-      { ...transactionData, date, amount },
+    return await this.databaseService.createTransaction({
+      data: { ...data, date, amount },
       userId,
-      categoryId
-    );
+      categoryId,
+    });
   }
 
-  async update(
-    transactionData: UpdateTransactionDto,
-    transactionId: number,
-    userId: number
-  ): Promise<Transaction> {
+  async update({
+    data,
+    transactionId,
+    userId,
+  }: IUpdateTransaction): Promise<Transaction> {
     const transactionInstance: Transaction = await this.getTransactionInstance(
       transactionId,
       userId
@@ -68,7 +73,7 @@ export class TransactionsRepository {
       label = transactionInstance.label,
       date = transactionInstance.date,
       categoryId = transactionInstance.category,
-    } = transactionData;
+    } = data;
 
     const { amount: newAmount } = await this.validateTransactionAmount(
       categoryId,
@@ -84,21 +89,24 @@ export class TransactionsRepository {
       categoryId
     );
 
-    return await this.databaseService.updateTransaction(
-      { amount: newAmount, label, date, categoryId },
+    return await this.databaseService.updateTransaction({
+      data: { amount: newAmount, label, date, categoryId },
       transactionId,
-      userId
-    );
+      userId,
+    });
   }
 
-  async delete(transactionId: number, userId: number): Promise<void> {
+  async delete({
+    transactionId,
+    userId,
+  }: IUserAndTransactionsIds): Promise<void> {
     await this.getTransactionInstance(transactionId, userId);
 
-    await this.databaseService.deleteRowFromTable(
-      'transactions',
-      'id',
-      transactionId
-    );
+    await this.databaseService.deleteRowFromTable({
+      table: 'transactions',
+      label: 'id',
+      value: transactionId,
+    });
   }
 
   private async checkForDuplicateTransaction(
@@ -150,7 +158,10 @@ export class TransactionsRepository {
     userId: number
   ): Promise<Transaction> {
     const transactionInstance =
-      await this.databaseService.getUserTransactionById(userId, transactionId);
+      await this.databaseService.getUserTransactionById({
+        userId,
+        transactionId,
+      });
 
     if (!transactionInstance) throw new NotFoundException();
 

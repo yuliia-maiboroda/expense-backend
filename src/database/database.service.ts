@@ -1,15 +1,27 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Pool } from 'postgres-pool';
-import { UpdateCategoryDto, CreateCategoryDto } from 'src/categories/dto';
+
 import { PG_CONNECTION } from 'src/common/constants';
+
 import { DefaultCategory, UserCategory } from 'src/models/categories';
 import { Transaction } from 'src/models/transactions';
 import { User } from 'src/models/users';
 import {
-  CreateTransactionDto,
-  UpdateTransactionDto,
-} from 'src/transactions/dto';
-import { UserRegistrationDto } from 'src/users/dto';
+  ICreateCategory,
+  ICreateTransaction,
+  ICreateUser,
+  IDeleteRowFromTable,
+  IGetAllRowsFromTable,
+  IGetRowsFromTable,
+  IGetUserById,
+  IGetUserByUsername,
+  IGetUserTransactionById,
+  ISetNewCategoryForTransaction,
+  IUpdateCategory,
+  IUpdateSessions,
+  IUpdateTransaction,
+  IUpdateUsersPassword,
+} from './interfaces';
 
 @Injectable()
 export class DatabaseService {
@@ -19,10 +31,10 @@ export class DatabaseService {
     return this.pool.query(query, params);
   }
 
-  async getAllRowsFromTable(
-    table: string,
-    returningColumns: string[] = []
-  ): Promise<any> {
+  async getAllRowsFromTable({
+    table,
+    returningColumns = [],
+  }: IGetAllRowsFromTable): Promise<any> {
     const returningClause =
       returningColumns.length > 0
         ? `RETURNING ${returningColumns.join(', ')}`
@@ -33,22 +45,22 @@ export class DatabaseService {
     return result.rows;
   }
 
-  async deleteRowFromTable(
-    table: string,
-    label: string,
-    value: number
-  ): Promise<void> {
+  async deleteRowFromTable({
+    table,
+    label,
+    value,
+  }: IDeleteRowFromTable): Promise<void> {
     await this.pool.query(`DELETE FROM ${table} WHERE ${label} = $1 `, [value]);
   }
 
-  async getRowsFromTable(
-    table: string,
-    label: string,
-    value: number | string,
-    additionalLabel?: string,
-    additionalValue?: number | string,
-    returningColumns: string[] = []
-  ): Promise<any> {
+  async getRowsFromTable({
+    table,
+    label,
+    value,
+    additionalLabel,
+    additionalValue,
+    returningColumns = [],
+  }: IGetRowsFromTable): Promise<any> {
     const selectedColumns =
       returningColumns.length > 0 ? returningColumns.join(', ') : ' *';
 
@@ -63,7 +75,7 @@ export class DatabaseService {
     return result.rows;
   }
 
-  async findUserById(userId: number): Promise<User> {
+  async findUserById({ userId }: IGetUserById): Promise<User> {
     const userInstance = await this.pool.query(
       'SELECT * FROM users WHERE id = $1;',
       [userId]
@@ -71,7 +83,7 @@ export class DatabaseService {
     return userInstance.rows[0];
   }
 
-  async findUserByUsername(username: string): Promise<User> {
+  async findUserByUsername({ username }: IGetUserByUsername): Promise<User> {
     const userInstance = await this.pool.query(
       'SELECT * FROM users WHERE username = $1;',
       [username]
@@ -79,34 +91,30 @@ export class DatabaseService {
     return userInstance.rows[0];
   }
 
-  async createUser(
-    data: UserRegistrationDto,
-    returningColumns: string[] = []
-  ): Promise<User> {
-    try {
-      const { username, displayname, password } = data;
-      const returningClause =
-        returningColumns.length > 0
-          ? `RETURNING ${returningColumns.join(', ')}`
-          : 'RETURNING *';
+  async createUser({
+    data,
+    returningColumns = [],
+  }: ICreateUser): Promise<User> {
+    const { username, displayname, password } = data;
+    const returningClause =
+      returningColumns.length > 0
+        ? `RETURNING ${returningColumns.join(', ')}`
+        : 'RETURNING *';
 
-      const query = `INSERT INTO users (username, displayname, password, sessionid, role, refreshid) VALUES ($1, $2, $3, uuid_generate_v4(), 'user', uuid_generate_v4()) ${returningClause};`;
-      const userInstance = await this.pool.query(query, [
-        username,
-        displayname,
-        password,
-      ]);
+    const query = `INSERT INTO users (username, displayname, password, sessionid, role, refreshid) VALUES ($1, $2, $3, uuid_generate_v4(), 'user', uuid_generate_v4()) ${returningClause};`;
+    const userInstance = await this.pool.query(query, [
+      username,
+      displayname,
+      password,
+    ]);
 
-      return userInstance.rows[0];
-    } catch (error) {
-      throw error;
-    }
+    return userInstance.rows[0];
   }
 
-  async updateUserSessionAndRefreshId(
-    userId: number,
-    returningColumns: string[] = []
-  ): Promise<User> {
+  async updateUserSessionAndRefreshId({
+    userId,
+    returningColumns = [],
+  }: IUpdateSessions): Promise<User> {
     const sessionId = 'uuid_generate_v4()';
     const refreshId = 'uuid_generate_v4()';
 
@@ -127,10 +135,10 @@ export class DatabaseService {
     );
   }
 
-  async updateUserPassword(
-    userId: number,
-    password: string
-  ): Promise<{ sessionid: string; refreshid: string }> {
+  async updateUserPassword({
+    userId,
+    password,
+  }: IUpdateUsersPassword): Promise<{ sessionid: string; refreshid: string }> {
     const userInstance = await this.pool.query(
       'UPDATE users SET password = $1, sessionid = uuid_generate_v4(), refreshid = uuid_generate_v4() WHERE id = $2 RETURNING sessionid, refreshid;',
       [password, userId]
@@ -162,10 +170,10 @@ export class DatabaseService {
     return categories.rows;
   }
 
-  async createCategory(
-    data: CreateCategoryDto,
-    userId: number
-  ): Promise<UserCategory> {
+  async createCategory({
+    data,
+    userId,
+  }: ICreateCategory): Promise<UserCategory> {
     const { label, type } = data;
 
     const categoryInstance = await this.pool.query(
@@ -176,11 +184,11 @@ export class DatabaseService {
     return categoryInstance.rows[0];
   }
 
-  async updateCategory(
-    data: UpdateCategoryDto,
-    categoryId: number,
-    userId: number
-  ): Promise<UserCategory> {
+  async updateCategory({
+    data,
+    categoryId,
+    userId,
+  }: IUpdateCategory): Promise<UserCategory> {
     const { label, type } = data;
 
     const categoryInstance = await this.pool.query(
@@ -199,10 +207,10 @@ export class DatabaseService {
     return categoryInstance.rows[0];
   }
 
-  async setNewCategoryForTransaction(
-    newCategoryId: number,
-    oldCategoryid: number
-  ): Promise<void> {
+  async setNewCategoryForTransaction({
+    newCategoryId,
+    oldCategoryid,
+  }: ISetNewCategoryForTransaction): Promise<void> {
     await this.pool.query(
       'UPDATE transactions SET category = $1 WHERE category = $2',
       [newCategoryId, oldCategoryid]
@@ -226,10 +234,10 @@ export class DatabaseService {
     return transactions.rows;
   }
 
-  async getUserTransactionById(
-    userId: number,
-    transactionId: number
-  ): Promise<Transaction> {
+  async getUserTransactionById({
+    userId,
+    transactionId,
+  }: IGetUserTransactionById): Promise<Transaction> {
     const transactionInstance = await this.pool.query(
       'SELECT * FROM transactions WHERE owner = $1 AND id = $2',
       [userId, transactionId]
@@ -237,11 +245,11 @@ export class DatabaseService {
     return transactionInstance.rows[0];
   }
 
-  async createTransaction(
-    data: CreateTransactionDto,
-    userId: number,
-    categoryId: number
-  ): Promise<Transaction> {
+  async createTransaction({
+    data,
+    userId,
+    categoryId,
+  }: ICreateTransaction): Promise<Transaction> {
     const { amount, date, label } = data;
 
     const transactionInstance = await this.pool.query(
@@ -252,11 +260,11 @@ export class DatabaseService {
     return transactionInstance.rows[0];
   }
 
-  async updateTransaction(
-    data: UpdateTransactionDto,
-    transactionId: number,
-    userId: number
-  ): Promise<Transaction> {
+  async updateTransaction({
+    data,
+    transactionId,
+    userId,
+  }: IUpdateTransaction): Promise<Transaction> {
     const { amount, date, label, categoryId } = data;
 
     const transactionInstance = await this.pool.query(

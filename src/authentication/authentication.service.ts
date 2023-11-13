@@ -28,6 +28,6 @@ export class AuthenticationService {
   }
 
   verifyRefreshToken(token: string) {
-    return jwt.verify(token, this.jwtRefreshKey);
+    return jwt.verify(token, this.jwtRefreshKey) as IRefreshPayload;
   }
 }
