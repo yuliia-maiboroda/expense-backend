@@ -1,5 +1,6 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import { config } from 'dotenv';
+
+config({ path: `${process.cwd()}/src/config/env/${process.env.NODE_ENV}.env` });
 
 export const POSTGRES_CONFIG = {
   host: process.env.POSTGRES_HOST,
@@ -7,5 +8,5 @@ export const POSTGRES_CONFIG = {
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   port: Number(process.env.POSTGRES_PORT),
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: Boolean(process.env.POSTGRES_SSL) },
 };

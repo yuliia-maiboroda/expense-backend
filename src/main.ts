@@ -23,7 +23,7 @@ async function bootstrap() {
     .setTitle('expense-backend')
     .addBearerAuth()
     .setVersion('1.0')
-    .addServer('http://localhost:8080', 'local server')
+    .addServer(`http://localhost:${PORT}`, 'local server')
     .addServer('https://expense-backend.cyclic.app', 'cyclic server')
     .build();
 
