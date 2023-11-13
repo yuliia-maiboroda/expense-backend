@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { TransactionsRepository } from './transactions.repository';
 import { Transaction } from 'src/models/transactions';
-import { CreateTransactionDto, UpdateTransactionDto } from './dto';
+import {
+  ICreateTransaction,
+  IUpdateTransaction,
+  IUserAndTransactionsIds,
+} from './interfaces';
 
 @Injectable()
 export class TransactionsService {
@@ -9,39 +13,45 @@ export class TransactionsService {
     private readonly transactionsRepository: TransactionsRepository
   ) {}
 
-  async getAll(userId: number): Promise<Transaction[]> {
-    return await this.transactionsRepository.getAll(userId);
+  async getAll({ userId }: { userId: number }): Promise<Transaction[]> {
+    return await this.transactionsRepository.getAll({ userId });
   }
 
-  async getById(transactionId: number, userId: number) {
-    return await this.transactionsRepository.getById(transactionId, userId);
+  async getById({
+    transactionId,
+    userId,
+  }: IUserAndTransactionsIds): Promise<Transaction> {
+    return await this.transactionsRepository.getById({ transactionId, userId });
   }
 
-  async create(
-    transactionData: CreateTransactionDto,
-    userId: number,
-    categoryId: number
-  ) {
-    return await this.transactionsRepository.create(
-      transactionData,
+  async create({
+    data,
+    userId,
+    categoryId,
+  }: ICreateTransaction): Promise<Transaction> {
+    return await this.transactionsRepository.create({
+      data,
       userId,
-      categoryId
-    );
+      categoryId,
+    });
   }
 
-  async update(
-    transactionData: UpdateTransactionDto,
-    transactionId: number,
-    userId: number
-  ): Promise<Transaction> {
-    return await this.transactionsRepository.update(
-      transactionData,
+  async update({
+    data,
+    transactionId,
+    userId,
+  }: IUpdateTransaction): Promise<Transaction> {
+    return await this.transactionsRepository.update({
+      data,
       transactionId,
-      userId
-    );
+      userId,
+    });
   }
 
-  async delete(transactionId: number, userId: number): Promise<void> {
-    await this.transactionsRepository.delete(transactionId, userId);
+  async delete({
+    transactionId,
+    userId,
+  }: IUserAndTransactionsIds): Promise<void> {
+    await this.transactionsRepository.delete({ transactionId, userId });
   }
 }

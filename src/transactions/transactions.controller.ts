@@ -43,7 +43,7 @@ export class TransactionsController {
   @Get('/')
   @HttpCode(200)
   async getAll(@Req() req: RequestWithUserInterface) {
-    return this.transactionsService.getAll(req.user.id);
+    return this.transactionsService.getAll({ userId: req.user.id });
   }
 
   @ApiOperation({
@@ -76,11 +76,11 @@ export class TransactionsController {
     @Param('categoryId') categoryId: number,
     @Body() transactionData: CreateTransactionDto
   ) {
-    return this.transactionsService.create(
-      transactionData,
-      req.user.id,
-      categoryId
-    );
+    return this.transactionsService.create({
+      data: transactionData,
+      userId: req.user.id,
+      categoryId,
+    });
   }
 
   @ApiOperation({
@@ -117,11 +117,11 @@ export class TransactionsController {
     @Param('transactionId') transactionId: number,
     @Body() transactionData: UpdateTransactionDto
   ) {
-    return this.transactionsService.update(
-      transactionData,
+    return this.transactionsService.update({
+      data: transactionData,
       transactionId,
-      req.user.id
-    );
+      userId: req.user.id,
+    });
   }
 
   @ApiOperation({
@@ -149,7 +149,10 @@ export class TransactionsController {
     @Req() req: RequestWithUserInterface,
     @Param('transactionId') transactionId: number
   ) {
-    return this.transactionsService.getById(transactionId, req.user.id);
+    return this.transactionsService.getById({
+      transactionId,
+      userId: req.user.id,
+    });
   }
 
   @ApiOperation({
@@ -176,6 +179,9 @@ export class TransactionsController {
     @Req() req: RequestWithUserInterface,
     @Param('transactionId') transactionId: number
   ) {
-    await this.transactionsService.delete(transactionId, req.user.id);
+    await this.transactionsService.delete({
+      transactionId,
+      userId: req.user.id,
+    });
   }
 }
