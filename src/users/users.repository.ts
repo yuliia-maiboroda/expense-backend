@@ -7,7 +7,7 @@ import {
 import bcrypt from 'bcrypt';
 
 import { DatabaseService } from 'src/database/database.service';
-import { UserLoginDto, UserRegistrationDto } from './dto';
+import { ChangePasswordDto, UserLoginDto, UserRegistrationDto } from './dto';
 import { User, UserProperties } from '../models/users/user.schema';
 import { RETURNING_COLUMNS } from './constants';
 
@@ -15,7 +15,11 @@ import { RETURNING_COLUMNS } from './constants';
 export class UsersRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(userData: UserRegistrationDto): Promise<UserProperties> {
+  async create({
+    userData,
+  }: {
+    userData: UserRegistrationDto;
+  }): Promise<UserProperties> {
     const hashPassword = await bcrypt.hash(userData.password, 10);
 
     await this.ensureUniqueUsername(userData.username);
@@ -33,7 +37,11 @@ export class UsersRepository {
     return result;
   }
 
-  async login(userData: UserLoginDto): Promise<UserProperties> {
+  async login({
+    userData,
+  }: {
+    userData: UserLoginDto;
+  }): Promise<UserProperties> {
     const user = await this.findUserByUsername(userData.username);
 
     if (!user) throw new UnauthorizedException();
@@ -48,11 +56,11 @@ export class UsersRepository {
     return result;
   }
 
-  async logout(id: number): Promise<void> {
+  async logout({ id }: { id: number }): Promise<void> {
     await this.databaseService.setSessionIdNull(id);
   }
 
-  async refreshToken(id: number): Promise<UserProperties> {
+  async refreshToken({ id }: { id: number }): Promise<UserProperties> {
     const user = await this.findUserById(id);
 
     return await this.databaseService.updateUserSessionAndRefreshId({
@@ -61,11 +69,13 @@ export class UsersRepository {
     });
   }
 
-  async changePassword(
-    id: number,
-    oldPassword: string,
-    newPassword: string
-  ): Promise<{ sessionid: string; refreshid: string }> {
+  async changePassword({
+    id,
+    data: { oldPassword, newPassword },
+  }: {
+    id: number;
+    data: ChangePasswordDto;
+  }): Promise<{ sessionid: string; refreshid: string }> {
     const userInstance = await this.findUserById(id);
 
     await this.validatePassword(oldPassword, userInstance.password);

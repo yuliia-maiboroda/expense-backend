@@ -53,7 +53,7 @@ export class UsersController {
     @Res({ passthrough: true }) response: Response
   ): Promise<UserEntities> {
     const { accessToken, refreshToken, user } =
-      await this.usersService.register(userData);
+      await this.usersService.register({ userData });
 
     this.cookieService.setCookie({
       response,
@@ -87,8 +87,9 @@ export class UsersController {
     @Body() userData: UserLoginDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<UserEntities> {
-    const { accessToken, refreshToken, user } =
-      await this.usersService.login(userData);
+    const { accessToken, refreshToken, user } = await this.usersService.login({
+      userData,
+    });
 
     this.cookieService.setCookie({
       response,
@@ -119,7 +120,7 @@ export class UsersController {
     @Req() req: RequestWithUserInterface,
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
-    this.usersService.logout(req.user.id);
+    this.usersService.logout({ userId: req.user.id });
 
     this.cookieService.unsetCookie(response);
   }
@@ -178,11 +179,10 @@ export class UsersController {
     @Res({ passthrough: true }) response: Response
   ): Promise<TokenEntities> {
     const { accessToken, refreshToken } =
-      await this.usersService.changePassword(
-        req.user.id,
-        userData.oldPassword,
-        userData.newPassword
-      );
+      await this.usersService.changePassword({
+        id: req.user.id,
+        data: userData,
+      });
 
     this.cookieService.setCookie({
       response,
