@@ -8,5 +8,7 @@ export const POSTGRES_CONFIG = {
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   port: Number(process.env.POSTGRES_PORT),
-  ssl: { rejectUnauthorized: Boolean(process.env.POSTGRES_SSL) },
+  ssl: process.env.NODE_ENV === 'production' && {
+    rejectUnauthorized: false,
+  },
 };
