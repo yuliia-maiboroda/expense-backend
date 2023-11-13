@@ -45,7 +45,9 @@ export class CategoriesController {
   @Get('/')
   @HttpCode(200)
   async getAll(@Req() req: RequestWithUserInterface): Promise<UserCategory[]> {
-    return this.categoriesService.getAllUsersCategories(req.user.id);
+    return this.categoriesService.getAllUsersCategories({
+      userId: req.user.id,
+    });
   }
 
   @ApiOperation({
@@ -69,7 +71,10 @@ export class CategoriesController {
     @Req() req: RequestWithUserInterface,
     @Body() category: CreateCategoryDto
   ): Promise<UserCategory> {
-    return this.categoriesService.createUsersCategory(category, req.user.id);
+    return this.categoriesService.createUsersCategory({
+      data: category,
+      userId: req.user.id,
+    });
   }
 
   @ApiOperation({
@@ -102,11 +107,11 @@ export class CategoriesController {
     @Param('categoryId') categoryId: number,
     @Body() category: UpdateCategoryDto
   ): Promise<UserCategory> {
-    return this.categoriesService.updateUsersCategory(
-      category,
-      categoryId,
-      req.user.id
-    );
+    return this.categoriesService.updateUsersCategory({
+      data: category,
+      categoryId: categoryId,
+      userId: req.user.id,
+    });
   }
 
   @ApiOperation({
@@ -133,7 +138,10 @@ export class CategoriesController {
     @Req() req: RequestWithUserInterface,
     @Param('categoryId') categoryId: number
   ): Promise<void> {
-    await this.categoriesService.deleteUsersCategory(categoryId, req.user.id);
+    await this.categoriesService.deleteUsersCategory({
+      categoryId,
+      userId: req.user.id,
+    });
   }
 
   @ApiOperation({
@@ -161,6 +169,9 @@ export class CategoriesController {
     @Req() req: RequestWithUserInterface,
     @Param('categoryId') categoryId: number
   ): Promise<UserCategory> {
-    return this.categoriesService.getCategoryById(categoryId, req.user.id);
+    return this.categoriesService.getCategoryById({
+      categoryId,
+      userId: req.user.id,
+    });
   }
 }

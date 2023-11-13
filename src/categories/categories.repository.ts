@@ -7,55 +7,47 @@ import {
 
 import { DatabaseService } from 'src/database/database.service';
 import { UserCategory } from 'src/models/categories';
-import { UpdateCategoryDto, CreateCategoryDto } from './dto';
+import {
+  ICreateCategory,
+  IUpdateCategory,
+  IUserAndCategoryIds,
+} from './interfaces';
 
 @Injectable()
 export class CategoriesRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async getAll(userId: number): Promise<UserCategory[]> {
+  async getAll({ userId }: { userId: number }): Promise<UserCategory[]> {
     return await this.databaseService.getUsersCategories(userId);
   }
 
-  async create(
-    categoryData: CreateCategoryDto,
-    userId: number
-  ): Promise<UserCategory> {
-    await this.checkForDuplicateCategory(
-      categoryData.label,
-      categoryData.type,
-      userId
-    );
+  async create({ data, userId }: ICreateCategory): Promise<UserCategory> {
+    await this.checkForDuplicateCategory(data.label, data.type, userId);
 
     const category = await this.databaseService.createCategory({
-      data: categoryData,
+      data,
       userId,
     });
 
     return category;
   }
 
-  async update(
-    categoryData: UpdateCategoryDto,
-    categoryId: number,
-    userId: number
-  ): Promise<UserCategory> {
+  async update({
+    data,
+    categoryId,
+    userId,
+  }: IUpdateCategory): Promise<UserCategory> {
     const categoryInstance: UserCategory = await this.getCategoryInstance(
       categoryId,
       userId
     );
 
-    this.checkForDuplicateCategory(
-      categoryData.label,
-      categoryData.type,
-      userId,
-      categoryId
-    );
+    this.checkForDuplicateCategory(data.label, data.type, userId, categoryId);
 
     await this.validateCategoryAction(categoryInstance);
 
     const { label = categoryInstance.label, type = categoryInstance.type } =
-      categoryData;
+      data;
 
     const updatedCategory = await this.databaseService.updateCategory({
       data: { label, type },
@@ -66,7 +58,7 @@ export class CategoriesRepository {
     return updatedCategory;
   }
 
-  async delete(categoryId: number, userId: number): Promise<void> {
+  async delete({ categoryId, userId }: IUserAndCategoryIds): Promise<void> {
     const categoryInstance: UserCategory = await this.getCategoryInstance(
       categoryId,
       userId
@@ -91,7 +83,10 @@ export class CategoriesRepository {
     });
   }
 
-  async getById(categoryId: number, userId: number): Promise<UserCategory> {
+  async getById({
+    categoryId,
+    userId,
+  }: IUserAndCategoryIds): Promise<UserCategory> {
     const categoryInstance: UserCategory = await this.getCategoryInstance(
       categoryId,
       userId
