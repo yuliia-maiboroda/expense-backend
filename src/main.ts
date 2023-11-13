@@ -24,7 +24,7 @@ async function bootstrap() {
     .addBearerAuth()
     .setVersion('1.0')
     .addServer('http://localhost:8080', 'local server')
-    // .addServer('https://expense-backend.herokuapp.com', 'heroku server')
+    .addServer('https://expense-backend.cyclic.app', 'cyclic server')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
