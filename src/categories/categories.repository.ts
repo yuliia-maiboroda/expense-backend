@@ -6,9 +6,8 @@ import {
 } from '@nestjs/common';
 
 import { DatabaseService } from 'src/database/database.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { UserCategory } from 'src/models/categories';
-import { UpdateCategoryDto } from './dto';
+import { UpdateCategoryDto, CreateCategoryDto } from './dto';
 
 @Injectable()
 export class CategoriesRepository {
@@ -91,6 +90,7 @@ export class CategoriesRepository {
       categoryId
     );
   }
+
   async getById(categoryId: number, userId: number): Promise<UserCategory> {
     const categoryInstance: UserCategory = await this.getCategoryInstance(
       categoryId,
@@ -130,7 +130,7 @@ export class CategoriesRepository {
 
     const repeatedCategory = existingUsersCategories.find(
       category =>
-        category.label === label &&
+        category.label?.toLowerCase() === label?.toLowerCase() &&
         category.type === type &&
         category.id !== categoryId
     );
