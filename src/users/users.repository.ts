@@ -36,7 +36,7 @@ export class UsersRepository {
   async login(userData: UserLoginDto): Promise<UserProperties> {
     const user = await this.findUserByUsername(userData.username);
 
-    this.throwNotFoundIfNull(user);
+    if (!user) throw new UnauthorizedException();
 
     await this.validatePassword(userData.password, user.password);
 

@@ -21,10 +21,12 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('expense-backend')
-    .setDescription('The cats API description')
+    .addBearerAuth()
     .setVersion('1.0')
-    .addTag('cats')
+    .addServer('http://localhost:8080', 'local server')
+    // .addServer('https://expense-backend.herokuapp.com', 'heroku server')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 

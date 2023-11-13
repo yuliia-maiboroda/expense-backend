@@ -38,6 +38,14 @@ export class UsersController {
     status: 201,
     type: UserEntities,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User already exists',
+  })
   @Post('/register')
   @HttpCode(201)
   async register(
@@ -64,6 +72,14 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     type: UserEntities,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
   })
   @Post('/login')
   @HttpCode(200)
@@ -92,6 +108,10 @@ export class UsersController {
   @ApiResponse({
     status: 204,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   @UseGuards(JwtAuthGuard)
   @Post('/logout')
   @HttpCode(204)
@@ -111,6 +131,10 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     type: TokenEntities,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
   })
   @Post('/refresh')
   @HttpCode(200)
@@ -136,6 +160,14 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     type: TokenEntities,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
   })
   @UseGuards(JwtAuthGuard)
   @Post('/change-password')

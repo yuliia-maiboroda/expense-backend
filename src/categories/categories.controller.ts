@@ -16,10 +16,16 @@ import { RequestWithUserInterface } from 'src/common/interfaces';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UserCategory } from 'src/models/categories';
 import { UpdateCategoryDto } from './dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CategoryEntities } from './entities';
 
 @ApiTags('Categories')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('categories')
 export class CategoriesController {
@@ -31,6 +37,10 @@ export class CategoriesController {
   @ApiResponse({
     status: 200,
     type: [CategoryEntities],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
   })
   @Get('/')
   @HttpCode(200)
@@ -44,6 +54,14 @@ export class CategoriesController {
   @ApiResponse({
     status: 201,
     type: CategoryEntities,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Category already exists',
   })
   @Post('/')
   @HttpCode(201)
@@ -60,6 +78,22 @@ export class CategoriesController {
   @ApiResponse({
     status: 200,
     type: CategoryEntities,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Category already exists',
   })
   @Post('/:categoryId')
   @HttpCode(200)
@@ -81,6 +115,18 @@ export class CategoriesController {
   @ApiResponse({
     status: 204,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
   @Delete('/:categoryId')
   @HttpCode(204)
   async delete(
@@ -96,6 +142,18 @@ export class CategoriesController {
   @ApiResponse({
     status: 200,
     type: CategoryEntities,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
   })
   @Get('/:categoryId')
   @HttpCode(200)
