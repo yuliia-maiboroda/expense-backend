@@ -3,7 +3,12 @@ import { Pool } from 'postgres-pool';
 import { UpdateCategoryDto, CreateCategoryDto } from 'src/categories/dto';
 import { PG_CONNECTION } from 'src/common/constants';
 import { DefaultCategory, UserCategory } from 'src/models/categories';
+import { Transaction } from 'src/models/transactions';
 import { User } from 'src/models/users';
+import {
+  CreateTransactionDto,
+  UpdateTransactionDto,
+} from 'src/transactions/dto';
 import { UserRegistrationDto } from 'src/users/dto';
 
 @Injectable()
@@ -210,5 +215,55 @@ export class DatabaseService {
       [userId, 'Others']
     );
     return categories.rows[0];
+  }
+
+  async getUsersTransactions(userId: number): Promise<Transaction[]> {
+    const transactions = await this.pool.query(
+      'SELECT * FROM transactions WHERE owner = $1',
+      [userId]
+    );
+
+    return transactions.rows;
+  }
+
+  async getUserTransactionById(
+    userId: number,
+    transactionId: number
+  ): Promise<Transaction> {
+    const transactionInstance = await this.pool.query(
+      'SELECT * FROM transactions WHERE owner = $1 AND id = $2',
+      [userId, transactionId]
+    );
+    return transactionInstance.rows[0];
+  }
+
+  async createTransaction(
+    data: CreateTransactionDto,
+    userId: number,
+    categoryId: number
+  ): Promise<Transaction> {
+    const { amount, date, label } = data;
+
+    const transactionInstance = await this.pool.query(
+      'INSERT INTO transactions ( amount, label, category, owner, date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [amount, label, categoryId, userId, date]
+    );
+
+    return transactionInstance.rows[0];
+  }
+
+  async updateTransaction(
+    data: UpdateTransactionDto,
+    transactionId: number,
+    userId: number
+  ): Promise<Transaction> {
+    const { amount, date, label, categoryId } = data;
+
+    const transactionInstance = await this.pool.query(
+      'UPDATE transactions SET amount = $1, label = $2, category = $3, date = $4 WHERE id = $5 AND owner = $6 RETURNING *',
+      [amount, label, categoryId, date, transactionId, userId]
+    );
+
+    return transactionInstance.rows[0];
   }
 }

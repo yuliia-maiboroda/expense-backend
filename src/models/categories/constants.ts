@@ -1,6 +1,6 @@
 export enum TYPE_OF_CATEGORY {
-  INCOME = 'income',
-  EXPENSE = 'expense',
+  income = 'income',
+  expense = 'expense',
 }
 
 export const CATEGORY_TYPES = Object.values(TYPE_OF_CATEGORY);

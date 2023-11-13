@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     label VARCHAR(50) NOT NULL,
     amount NUMERIC,
+    date DATE NOT NULL,
     owner INTEGER,
     FOREIGN KEY(owner) REFERENCES users(id),
     category INTEGER,
