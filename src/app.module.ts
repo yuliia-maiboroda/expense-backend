@@ -28,4 +28,6 @@ import { CookieModule } from './cookie/cookie.module';
     CookieModule,
   ],
 })
+
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class AppModule {}

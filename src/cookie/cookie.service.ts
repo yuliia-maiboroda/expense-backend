@@ -4,6 +4,7 @@ import { AuthenticationService } from 'src/authentication/authentication.service
 import { IRefreshPayload } from 'src/authentication/interfaces/jwt-interface';
 import { DatabaseService } from 'src/database/database.service';
 import { ISetCookieInterface } from './interfaces';
+import { User } from 'src/models/users';
 
 @Injectable()
 export class CookieService {
@@ -14,13 +15,16 @@ export class CookieService {
 
   async validateRefreshTokenInCookie(request: Request): Promise<number> {
     try {
-      const { jwt: refreshToken } = request.cookies;
+      const { jwt: refreshToken }: { jwt: string } = request.cookies as {
+        jwt: string;
+      };
 
       if (!refreshToken) throw new UnauthorizedException();
 
-      const { userId, refreshId } = this.verifyRefreshToken(refreshToken);
+      const { userId, refreshId }: IRefreshPayload =
+        this.verifyRefreshToken(refreshToken);
 
-      const user = await this.databaseService.findUserById({ userId });
+      const user: User = await this.databaseService.findUserById({ userId });
 
       if (!user) throw new UnauthorizedException('Unauthorized');
 
@@ -35,9 +39,8 @@ export class CookieService {
 
   private verifyRefreshToken(refreshToken: string): IRefreshPayload {
     try {
-      const decodedToken = this.authenticationService.verifyRefreshToken(
-        refreshToken
-      ) as IRefreshPayload;
+      const decodedToken =
+        this.authenticationService.verifyRefreshToken(refreshToken);
 
       if (!decodedToken) throw new UnauthorizedException('Unauthorized');
 

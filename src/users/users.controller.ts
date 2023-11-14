@@ -120,7 +120,7 @@ export class UsersController {
     @Req() req: RequestWithUserInterface,
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
-    this.usersService.logout({ userId: req.user.id });
+    await this.usersService.logout({ userId: req.user.id });
 
     this.cookieService.unsetCookie(response);
   }

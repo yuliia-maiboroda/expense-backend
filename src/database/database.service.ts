@@ -38,6 +38,8 @@ export class DatabaseService {
     const result = await this.pool.query(
       `SELECT * FROM ${table} ${returningClause};`
     );
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return result.rows;
   }
 
@@ -68,6 +70,8 @@ export class DatabaseService {
       };`,
       [value]
     );
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return result.rows;
   }
 
@@ -76,7 +80,7 @@ export class DatabaseService {
       'SELECT * FROM users WHERE id = $1;',
       [userId]
     );
-    return userInstance.rows[0];
+    return userInstance.rows[0] as User;
   }
 
   async findUserByUsername({ username }: IGetUserByUsername): Promise<User> {
@@ -84,7 +88,7 @@ export class DatabaseService {
       'SELECT * FROM users WHERE username = $1;',
       [username]
     );
-    return userInstance.rows[0];
+    return userInstance.rows[0] as User;
   }
 
   async createUser({
@@ -104,7 +108,7 @@ export class DatabaseService {
       password,
     ]);
 
-    return userInstance.rows[0];
+    return userInstance.rows[0] as User;
   }
 
   async updateUserSessionAndRefreshId({
@@ -122,10 +126,10 @@ export class DatabaseService {
 
     const userInstance = await this.pool.query(query);
 
-    return userInstance.rows[0];
+    return userInstance.rows[0] as User;
   }
 
-  async setSessionIdNull(userId: number): Promise<void> {
+  async setSessionIdNull(userId: number) {
     await this.pool.query(
       `UPDATE users SET sessionid = null WHERE id = ${userId};`
     );
@@ -140,14 +144,14 @@ export class DatabaseService {
       [password, userId]
     );
 
-    return userInstance.rows[0];
+    return userInstance.rows[0] as { sessionid: string; refreshid: string };
   }
 
   async getDefaultCategories(): Promise<DefaultCategory[]> {
     const categories = await this.pool.query(
       'SELECT * FROM default_categories'
     );
-    return categories.rows;
+    return categories.rows as DefaultCategory[];
   }
 
   async setInitCategoriesForUser(id: number): Promise<UserCategory[]> {
@@ -155,7 +159,7 @@ export class DatabaseService {
       'INSERT INTO categories ( label, type, owner, ismutable) SELECT label, type, $1, ismutable FROM default_categories RETURNING *',
       [id]
     );
-    return categories.rows;
+    return categories.rows as UserCategory[];
   }
 
   async getUsersCategories(userId: number): Promise<UserCategory[]> {
@@ -163,7 +167,7 @@ export class DatabaseService {
       'SELECT * FROM categories WHERE owner = $1',
       [userId]
     );
-    return categories.rows;
+    return categories.rows as UserCategory[];
   }
 
   async createCategory({
@@ -177,7 +181,7 @@ export class DatabaseService {
       [label, type, userId, true]
     );
 
-    return categoryInstance.rows[0];
+    return categoryInstance.rows[0] as UserCategory;
   }
 
   async updateCategory({
@@ -192,7 +196,7 @@ export class DatabaseService {
       [label, type, categoryId, userId]
     );
 
-    return categoryInstance.rows[0];
+    return categoryInstance.rows[0] as UserCategory;
   }
 
   async getCategoryById(categoryId: number): Promise<UserCategory> {
@@ -200,7 +204,7 @@ export class DatabaseService {
       'SELECT * FROM categories WHERE id = $1',
       [categoryId]
     );
-    return categoryInstance.rows[0];
+    return categoryInstance.rows[0] as UserCategory;
   }
 
   async setNewCategoryForTransaction({
@@ -218,7 +222,7 @@ export class DatabaseService {
       'SELECT * FROM categories WHERE owner = $1 AND ismutable = false AND label = $2',
       [userId, 'Others']
     );
-    return categories.rows[0];
+    return categories.rows[0] as UserCategory;
   }
 
   async getUsersTransactions(userId: number): Promise<Transaction[]> {
@@ -227,7 +231,7 @@ export class DatabaseService {
       [userId]
     );
 
-    return transactions.rows;
+    return transactions.rows as Transaction[];
   }
 
   async getUserTransactionById({
@@ -238,7 +242,7 @@ export class DatabaseService {
       'SELECT * FROM transactions WHERE owner = $1 AND id = $2',
       [userId, transactionId]
     );
-    return transactionInstance.rows[0];
+    return transactionInstance.rows[0] as Transaction;
   }
 
   async createTransaction({
@@ -253,7 +257,7 @@ export class DatabaseService {
       [amount, label, categoryId, userId, date]
     );
 
-    return transactionInstance.rows[0];
+    return transactionInstance.rows[0] as Transaction;
   }
 
   async updateTransaction({
@@ -268,6 +272,6 @@ export class DatabaseService {
       [amount, label, categoryId, date, transactionId, userId]
     );
 
-    return transactionInstance.rows[0];
+    return transactionInstance.rows[0] as Transaction;
   }
 }

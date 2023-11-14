@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
 import { AuthenticationService } from '../authentication.service';
 import { DatabaseService } from 'src/database/database.service';
@@ -20,14 +21,16 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   override async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeaders(request.headers.authorization);
+    const request: Request = context.switchToHttp().getRequest();
+    const headers = request.headers as Record<string, string>;
+
+    const token = this.extractTokenFromHeaders(headers['authorization']);
 
     if (!token) throw new UnauthorizedException('Unauthorized');
 
     const decodedToken = this.verifyToken(token);
 
-    const userInstanceInDB = await this.getUserFromDatabase(
+    const userInstanceInDB: User = await this.getUserFromDatabase(
       decodedToken.userId
     );
 
@@ -51,7 +54,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       const decodedToken = this.jwtService.verifyAccessToken(token);
       if (!decodedToken) throw new UnauthorizedException('Unauthorized');
 
-      return decodedToken as IPayload;
+      return decodedToken;
     } catch (error) {
       throw new UnauthorizedException('Unauthorized');
     }
