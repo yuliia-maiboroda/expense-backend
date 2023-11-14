@@ -41,13 +41,12 @@ export class CategoriesRepository {
       categoryId,
       userId
     );
-
-    this.checkForDuplicateCategory(data.label, data.type, userId, categoryId);
-
-    await this.validateCategoryAction(categoryInstance);
-
     const { label = categoryInstance.label, type = categoryInstance.type } =
       data;
+
+    await this.checkForDuplicateCategory(label, type, userId, categoryId);
+
+    this.validateCategoryAction(categoryInstance);
 
     const updatedCategory = await this.databaseService.updateCategory({
       data: { label, type },
@@ -64,7 +63,7 @@ export class CategoriesRepository {
       userId
     );
 
-    await this.validateCategoryAction(categoryInstance);
+    this.validateCategoryAction(categoryInstance);
 
     const dependentTransactions = await this.databaseService.getRowsFromTable({
       table: 'transactions',
@@ -73,7 +72,7 @@ export class CategoriesRepository {
     });
 
     if (dependentTransactions.length > 0) {
-      this.handleDependentTransactions(categoryId, userId);
+      await this.handleDependentTransactions(categoryId, userId);
     }
 
     await this.databaseService.deleteRowFromTable({
@@ -109,17 +108,16 @@ export class CategoriesRepository {
     return categoryInstance;
   }
 
-  private async validateCategoryAction(
-    categoryInstance: UserCategory
-  ): Promise<void> {
+  private validateCategoryAction(categoryInstance: UserCategory) {
     if (!categoryInstance.ismutable) throw new ForbiddenException();
   }
+
   private async checkForDuplicateCategory(
     label: string,
     type: string,
     userId: number,
     categoryId?: number
-  ): Promise<void> {
+  ) {
     const existingUsersCategories =
       await this.databaseService.getUsersCategories(userId);
 
@@ -137,7 +135,7 @@ export class CategoriesRepository {
   private async handleDependentTransactions(
     categoryId: number,
     userId: number
-  ): Promise<void> {
+  ) {
     const newCategoryForDeletedTransactions =
       await this.databaseService.getDefaultUserCategory(userId);
 

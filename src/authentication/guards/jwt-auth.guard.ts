@@ -4,10 +4,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
 import { AuthenticationService } from '../authentication.service';
 import { DatabaseService } from 'src/database/database.service';
 import { IPayload } from '../interfaces/jwt-interface';
+import { User } from 'src/models/users';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -18,15 +20,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     super();
   }
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeaders(request.headers.authorization);
+  override async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request: Request = context.switchToHttp().getRequest();
+    const headers = request.headers as Record<string, string>;
+
+    const token = this.extractTokenFromHeaders(headers['authorization']);
 
     if (!token) throw new UnauthorizedException('Unauthorized');
 
     const decodedToken = this.verifyToken(token);
 
-    const userInstanceInDB = await this.getUserFromDatabase(
+    const userInstanceInDB: User = await this.getUserFromDatabase(
       decodedToken.userId
     );
 
@@ -50,7 +54,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       const decodedToken = this.jwtService.verifyAccessToken(token);
       if (!decodedToken) throw new UnauthorizedException('Unauthorized');
 
-      return decodedToken as IPayload;
+      return decodedToken;
     } catch (error) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -66,7 +70,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return userInstanceInDB;
   }
 
-  private validateUserSession(userInstanceInDB: any, sessionId: string): void {
+  private validateUserSession(userInstanceInDB: User, sessionId: string): void {
     if (!userInstanceInDB.sessionid || userInstanceInDB.sessionid !== sessionId)
       throw new UnauthorizedException('Unauthorized');
   }

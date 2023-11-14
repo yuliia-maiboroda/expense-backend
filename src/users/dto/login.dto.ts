@@ -23,7 +23,7 @@ export class UserLoginDto {
     maximum: 50,
     required: true,
   })
-  username: string;
+  username!: string;
 
   @IsNotEmpty({ message: 'Password cannot be empty' })
   @IsString({ message: 'Password must be a string' })
@@ -44,5 +44,5 @@ export class UserLoginDto {
     maximum: 30,
     required: true,
   })
-  password: string;
+  password!: string;
 }

@@ -12,7 +12,7 @@ import {
 
 import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
-import { RequestWithUserInterface } from 'src/common/interfaces';
+import type { RequestWithUserInterface } from 'src/common/interfaces';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UserCategory } from 'src/models/categories';
 import { UpdateCategoryDto } from './dto';

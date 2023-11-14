@@ -18,7 +18,7 @@ import {
 
 import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
 import { TransactionsService } from './transactions.service';
-import { RequestWithUserInterface } from 'src/common/interfaces';
+import type { RequestWithUserInterface } from 'src/common/interfaces';
 import { CreateTransactionDto, UpdateTransactionDto } from './dto';
 import { TransactionEntities } from './entities';
 

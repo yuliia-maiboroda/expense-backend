@@ -27,7 +27,7 @@ export class ChangePasswordDto {
     maximum: 30,
     required: true,
   })
-  oldPassword: string;
+  oldPassword!: string;
 
   @IsNotEmpty({ message: 'New password cannot be empty' })
   @IsString({ message: 'New password must be a string' })
@@ -48,5 +48,5 @@ export class ChangePasswordDto {
     maximum: 30,
     required: true,
   })
-  newPassword: string;
+  newPassword!: string;
 }

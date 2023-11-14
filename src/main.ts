@@ -5,11 +5,16 @@ import { AppModule } from './app.module';
 import cookieParser = require('cookie-parser');
 
 async function bootstrap() {
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env['PORT'] ?? 3000;
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    })
+  );
 
   app.use(cookieParser());
   app.enableCors({
@@ -23,7 +28,7 @@ async function bootstrap() {
     .setTitle('expense-backend')
     .addBearerAuth()
     .setVersion('1.0')
-    .addServer('http://localhost:8080', 'local server')
+    .addServer(`http://localhost:${PORT}`, 'local server')
     .addServer('https://expense-backend.cyclic.app', 'cyclic server')
     .build();
 
@@ -34,4 +39,6 @@ async function bootstrap() {
     console.log(`Application is running on: ${PORT} port`);
   });
 }
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();

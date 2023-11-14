@@ -1,11 +1,14 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import { config } from 'dotenv';
+
+config();
 
 export const POSTGRES_CONFIG = {
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DB,
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  port: Number(process.env.POSTGRES_PORT),
-  ssl: { rejectUnauthorized: false },
+  host: process.env['POSTGRES_HOST'] ?? 'localhost',
+  database: process.env['POSTGRES_DB'] ?? 'postgres',
+  user: process.env['POSTGRES_USER'] ?? 'postgres',
+  password: process.env['POSTGRES_PASSWORD'] ?? 'postgres',
+  port: Number(process.env['POSTGRES_PORT']) ?? 5432,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 };

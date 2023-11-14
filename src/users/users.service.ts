@@ -84,7 +84,7 @@ export class UsersService {
   }
 
   async logout({ userId }: { userId: number }): Promise<void> {
-    this.usersRepository.logout({ id: userId });
+    await this.usersRepository.logout({ id: userId });
   }
 
   async refreshToken(

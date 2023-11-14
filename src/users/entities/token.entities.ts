@@ -5,5 +5,5 @@ export class TokenEntities {
     description: 'Access token',
     type: String,
   })
-  accessToken: string;
+  accessToken!: string;
 }

@@ -17,4 +17,6 @@ import { AuthenticationService } from 'src/authentication/authentication.service
   ],
   controllers: [CategoriesController],
 })
+
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class CategoriesModule {}

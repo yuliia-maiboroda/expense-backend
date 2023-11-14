@@ -6,29 +6,29 @@ export class CategoryEntities {
     description: 'Category id',
     type: Number,
   })
-  id: number;
+  id!: number;
 
   @ApiProperty({
     description: 'Category label',
     type: String,
   })
-  label: string;
+  label!: string;
 
   @ApiProperty({
     description: 'Category type',
     enum: TYPE_OF_CATEGORY,
   })
-  type: keyof typeof TYPE_OF_CATEGORY;
+  type!: keyof typeof TYPE_OF_CATEGORY;
 
   @ApiProperty({
     description: 'Category mutable',
     type: Boolean,
   })
-  ismutable: boolean;
+  ismutable!: boolean;
 
   @ApiProperty({
     description: 'Category owner',
     type: Number,
   })
-  owner: number;
+  owner!: number;
 }

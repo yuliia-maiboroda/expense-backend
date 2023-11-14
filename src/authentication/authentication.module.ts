@@ -8,4 +8,6 @@ import { DatabaseModule } from 'src/database/database.module';
   providers: [AuthenticationService],
   controllers: [],
 })
+
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class AuthenticationModule {}
