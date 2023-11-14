@@ -41,13 +41,12 @@ export class CategoriesRepository {
       categoryId,
       userId
     );
-
-    this.checkForDuplicateCategory(data.label, data.type, userId, categoryId);
-
-    await this.validateCategoryAction(categoryInstance);
-
     const { label = categoryInstance.label, type = categoryInstance.type } =
       data;
+
+    this.checkForDuplicateCategory(label, type, userId, categoryId);
+
+    await this.validateCategoryAction(categoryInstance);
 
     const updatedCategory = await this.databaseService.updateCategory({
       data: { label, type },

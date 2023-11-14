@@ -20,7 +20,7 @@ export class CreateTransactionDto {
     maximum: 50,
     required: true,
   })
-  label: string;
+  label!: string;
 
   @IsNotEmpty({ message: 'Amount cannot be empty' })
   @IsNumber({ allowNaN: false, allowInfinity: false })
@@ -29,7 +29,7 @@ export class CreateTransactionDto {
     type: Number,
     required: true,
   })
-  amount: number;
+  amount!: number;
 
   @IsOptional()
   @IsNotEmpty({ message: 'Date cannot be empty' })

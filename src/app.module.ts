@@ -9,14 +9,9 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { UsersModule } from './users/users.module';
 import { CookieModule } from './cookie/cookie.module';
 
-import { configuration } from './config/configuration';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `${process.cwd()}/config/env/${process.env.NODE_ENV}.env`,
-      load: [configuration],
-      isGlobal: true,
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_USER: Joi.string().required(),

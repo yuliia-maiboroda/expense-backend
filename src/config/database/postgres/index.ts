@@ -1,14 +1,14 @@
 import { config } from 'dotenv';
 
-config({ path: `${process.cwd()}/src/config/env/${process.env.NODE_ENV}.env` });
+config();
 
 export const POSTGRES_CONFIG = {
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DB,
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  port: Number(process.env.POSTGRES_PORT),
-  ssl: process.env.NODE_ENV === 'production' && {
+  host: process.env['POSTGRES_HOST'] as string,
+  database: process.env['POSTGRES_DB'] as string,
+  user: process.env['POSTGRES_USER'] as string,
+  password: process.env['POSTGRES_PASSWORD'] as string,
+  port: Number(process.env['POSTGRES_PORT']) as number,
+  ssl: {
     rejectUnauthorized: false,
   },
 };

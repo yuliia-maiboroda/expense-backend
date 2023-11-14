@@ -14,14 +14,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 import { ChangePasswordDto, UserLoginDto, UserRegistrationDto } from './dto';
 import { UsersService } from './users.service';
 import { CookieService } from 'src/cookie/cookie.service';
 import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
 import { TokenEntities, UserEntities } from './entities';
-import { RequestWithUserInterface } from 'src/common/interfaces/request.interface';
+import type { RequestWithUserInterface } from 'src/common/interfaces/request.interface';
 
 @ApiTags('Users')
 @Controller('users')

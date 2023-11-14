@@ -5,35 +5,35 @@ export class TransactionEntities {
     description: 'Transaction id',
     type: Number,
   })
-  id: number;
+  id!: number;
 
   @ApiProperty({
     description: 'Transaction label',
     type: String,
   })
-  label: string;
+  label!: string;
 
   @ApiProperty({
     description: 'Transaction amount',
     type: Number,
   })
-  amount: number;
+  amount!: number;
 
   @ApiProperty({
     description: 'Transaction date',
     type: Date,
   })
-  date: Date;
+  date!: Date;
 
   @ApiProperty({
     description: 'Transaction category id',
     type: Number,
   })
-  category: number;
+  category!: number;
 
   @ApiProperty({
     description: 'Transaction user id',
     type: Number,
   })
-  owner: number;
+  owner!: number;
 }

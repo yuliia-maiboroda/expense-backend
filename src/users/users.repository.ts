@@ -100,7 +100,7 @@ export class UsersRepository {
     return await this.databaseService.findUserByUsername({ username });
   }
 
-  private async findUserById(userId: number): Promise<User | null> {
+  private async findUserById(userId: number): Promise<User> {
     const user = await this.databaseService.findUserById({ userId });
 
     if (!user) throw new NotFoundException('User not found');

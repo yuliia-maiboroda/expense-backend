@@ -27,14 +27,10 @@ import {
 export class DatabaseService {
   constructor(@Inject(PG_CONNECTION) private readonly pool: Pool) {}
 
-  async runQuery(query: string, params?: unknown) {
-    return this.pool.query(query, params);
-  }
-
   async getAllRowsFromTable({
     table,
     returningColumns = [],
-  }: IGetAllRowsFromTable): Promise<any> {
+  }: IGetAllRowsFromTable): Promise<unknown[]> {
     const returningClause =
       returningColumns.length > 0
         ? `RETURNING ${returningColumns.join(', ')}`
@@ -60,7 +56,7 @@ export class DatabaseService {
     additionalLabel,
     additionalValue,
     returningColumns = [],
-  }: IGetRowsFromTable): Promise<any> {
+  }: IGetRowsFromTable): Promise<unknown[]> {
     const selectedColumns =
       returningColumns.length > 0 ? returningColumns.join(', ') : ' *';
 
