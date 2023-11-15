@@ -1,131 +1,94 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { isGuarded } from '../test/utils';
+
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
+
+import { DatabaseModule } from '../database/database.module';
+
 import { AuthenticationModule } from '../authentication/authentication.module';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
-import { CategoriesModule } from './categories.module';
-import { isGuarded } from '../test/utils';
-import { UserCategory } from '../models/categories';
-import { RequestWithUserInterface } from '../common/interfaces';
-import { User } from '../models/users';
-const httpMocks = require('node-mocks-http');
 
-// error     Cannot find module 'src/authentication/guards/jwt-auth.guard' from 'categories/categories.controller.ts'
-
-class mockUserRequest extends Request implements RequestWithUserInterface {
-  user: User = {
-    id: 1,
-    username: 'test',
-    displayname: 'test',
-    role: 'user',
-    sessionid: '',
-    refreshid: '',
-    password: '',
-  };
-}
+import { mockedCategories, mockedCategory } from './__mocks__';
 
 describe('CategoriesController', () => {
   let categoriesController: CategoriesController;
-  let categoriesService: CategoriesService;
 
   beforeEach(async () => {
-    const moduleRef = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [CategoriesController],
-      providers: [CategoriesService],
-      imports: [AuthenticationModule, CategoriesModule],
+      imports: [AuthenticationModule, DatabaseModule],
+      providers: [
+        {
+          provide: CategoriesService,
+          useValue: {
+            getAllUsersCategories: jest.fn().mockReturnValue(mockedCategories),
+            getCategoryById: jest.fn().mockReturnValue(mockedCategory),
+            createUsersCategory: jest.fn().mockReturnValue(mockedCategory),
+            updateUsersCategory: jest.fn().mockReturnValue(mockedCategory),
+            deleteUsersCategory: jest.fn(),
+          },
+        },
+      ],
     }).compile();
     categoriesController =
       moduleRef.get<CategoriesController>(CategoriesController);
-    categoriesService = moduleRef.get<CategoriesService>(CategoriesService);
   });
 
   it('should be defined', () => {
     expect(categoriesController).toBeDefined();
-    expect(categoriesService).toBeDefined();
   });
 
   it('should be protected with JwtAuthGuard', () => {
     expect(isGuarded(CategoriesController, JwtAuthGuard)).toBe(true);
   });
 
-  describe('getAll', () => {
-    it('should return all user categories', async () => {
-      const mockUserCategories: UserCategory[] = [];
-
-      const req = httpMocks.createRequest(mockUserRequest);
-
-      jest
-        .spyOn(categoriesService, 'getAllUsersCategories')
-        .mockResolvedValue(mockUserCategories);
-
-      const result = await categoriesController.getAll(req);
-
-      expect(result).toEqual(mockUserCategories);
+  describe('create', () => {
+    it('should create a new category', async () => {
+      const result = await categoriesController.create(1, {
+        label: 'test',
+        type: 'income',
+      });
+      expect(result).toEqual(mockedCategory);
     });
   });
 
-  describe('create', () => {
-    it('should create a new category', async () => {
-      const mockedCategory: UserCategory = {
-        id: 1,
-        label: 'test',
-        type: 'income',
-        owner: 1,
-        ismutable: true,
-      };
+  describe('getAll', () => {
+    it('should return all user categories', async () => {
+      const result = await categoriesController.getAll(1);
 
-      const req = httpMocks.createRequest(mockUserRequest);
+      expect(result.length).toBe(2);
+      expect(result[0]).toEqual(mockedCategories[0]);
+      expect(result[0].id).toBe(mockedCategories[0].id);
+      expect(result).toEqual(mockedCategories);
+    });
+  });
 
-      jest
-        .spyOn(categoriesService, 'createUsersCategory')
-        .mockResolvedValue(mockedCategory);
+  describe('get by id', () => {
+    it('should return a category', async () => {
+      const result = await categoriesController.getById(1, 1);
 
-      const result = await categoriesController.create(req, {
-        label: 'test',
-        type: 'income',
-      });
-
+      expect(result).toBeTruthy();
+      expect(result.id).toBe(mockedCategory.id);
       expect(result).toEqual(mockedCategory);
     });
+  });
 
-    describe('update user category', () => {
-      it('should update a category', async () => {
-        const mockedCategory: UserCategory = {
-          id: 1,
-          label: 'test',
-          type: 'income',
-          owner: 1,
-          ismutable: true,
-        };
-
-        const req = httpMocks.createRequest(mockUserRequest);
-        req.params = {
-          categoryId: 1,
-        };
-
-        req.body = {
-          label: 'test',
-          type: 'income',
-        };
-
-        const result = await categoriesController.update(
-          req,
-          req.params,
-          req.body
-        );
-        expect(result).toEqual(mockedCategory);
-      });
+  describe('delete by id', () => {
+    it('should return a void', async () => {
+      const result = await categoriesController.delete(1, 1);
+      expect(result).toBeUndefined();
     });
+  });
 
-    describe('delete user category', () => {
-      it('should delete a category', async () => {
-        const req = httpMocks.createRequest(mockUserRequest);
-        req.params = {
-          categoryId: 1,
-        };
-
-        await categoriesController.delete(req, req.params);
+  describe('update', () => {
+    it('should update a category', async () => {
+      const result = await categoriesController.update(1, 1, {
+        label: 'test',
+        type: 'income',
       });
+      expect(result).toEqual(mockedCategory);
     });
   });
 });

@@ -16,14 +16,14 @@ export class CategoriesService {
   }: {
     userId: number;
   }): Promise<UserCategory[]> {
-    return this.categoriesRepository.getAll({ userId });
+    return await this.categoriesRepository.getAll({ userId });
   }
 
   async createUsersCategory({
     data,
     userId,
   }: ICreateCategory): Promise<UserCategory> {
-    return this.categoriesRepository.create({ data, userId });
+    return await this.categoriesRepository.create({ data, userId });
   }
 
   async updateUsersCategory({
@@ -31,7 +31,7 @@ export class CategoriesService {
     categoryId,
     userId,
   }: IUpdateCategory): Promise<UserCategory> {
-    return this.categoriesRepository.update({ data, categoryId, userId });
+    return await this.categoriesRepository.update({ data, categoryId, userId });
   }
 
   async deleteUsersCategory({
@@ -45,6 +45,6 @@ export class CategoriesService {
     categoryId,
     userId,
   }: IUserAndCategoryIds): Promise<UserCategory> {
-    return this.categoriesRepository.getById({ categoryId, userId });
+    return await this.categoriesRepository.getById({ categoryId, userId });
   }
 }
