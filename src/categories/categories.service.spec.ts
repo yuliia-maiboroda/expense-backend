@@ -34,7 +34,7 @@ describe('CategoriesService', () => {
 
   describe('create', () => {
     it('should create a new category', async () => {
-      const result = await categoriesService.createUsersCategory({
+      const result = await categoriesService.create({
         data: mockedCategory,
         userId: 1,
       });
@@ -44,7 +44,7 @@ describe('CategoriesService', () => {
 
   describe('update', () => {
     it('should update a category', async () => {
-      const result = await categoriesService.updateUsersCategory({
+      const result = await categoriesService.update({
         data: mockedCategory,
         categoryId: 1,
         userId: 1,
@@ -55,7 +55,7 @@ describe('CategoriesService', () => {
 
   describe('delete', () => {
     it('should delete a category', async () => {
-      const result = await categoriesService.deleteUsersCategory({
+      const result = await categoriesService.delete({
         categoryId: 1,
         userId: 1,
       });
@@ -65,7 +65,7 @@ describe('CategoriesService', () => {
 
   describe('getAll', () => {
     it('should return all user categories', async () => {
-      const result = await categoriesService.getAllUsersCategories({
+      const result = await categoriesService.getAll({
         userId: 1,
       });
       expect(result.length).toBe(2);
@@ -77,7 +77,7 @@ describe('CategoriesService', () => {
 
   describe('get by id', () => {
     it('should return a category', async () => {
-      const result = await categoriesService.getCategoryById({
+      const result = await categoriesService.getById({
         categoryId: 1,
         userId: 1,
       });

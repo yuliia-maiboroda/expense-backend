@@ -44,7 +44,7 @@ export class CategoriesController {
   @Get('/')
   @HttpCode(200)
   async getAll(@User('id') userId: number): Promise<UserCategory[]> {
-    return this.categoriesService.getAllUsersCategories({
+    return this.categoriesService.getAll({
       userId,
     });
   }
@@ -70,7 +70,7 @@ export class CategoriesController {
     @User('id') userId: number,
     @Body() category: CreateCategoryDto
   ): Promise<UserCategory> {
-    return await this.categoriesService.createUsersCategory({
+    return await this.categoriesService.create({
       data: category,
       userId,
     });
@@ -106,7 +106,7 @@ export class CategoriesController {
     @Param('categoryId') categoryId: number,
     @Body() category: UpdateCategoryDto
   ): Promise<UserCategory> {
-    return this.categoriesService.updateUsersCategory({
+    return this.categoriesService.update({
       data: category,
       categoryId,
       userId,
@@ -137,7 +137,7 @@ export class CategoriesController {
     @User('id') userId: number,
     @Param('categoryId') categoryId: number
   ): Promise<void> {
-    await this.categoriesService.deleteUsersCategory({
+    await this.categoriesService.delete({
       categoryId,
       userId,
     });
@@ -168,7 +168,7 @@ export class CategoriesController {
     @User('id') userId: number,
     @Param('categoryId') categoryId: number
   ): Promise<UserCategory> {
-    return this.categoriesService.getCategoryById({
+    return this.categoriesService.getById({
       categoryId,
       userId,
     });

@@ -23,11 +23,11 @@ describe('CategoriesController', () => {
         {
           provide: CategoriesService,
           useValue: {
-            getAllUsersCategories: jest.fn().mockReturnValue(mockedCategories),
-            getCategoryById: jest.fn().mockReturnValue(mockedCategory),
-            createUsersCategory: jest.fn().mockReturnValue(mockedCategory),
-            updateUsersCategory: jest.fn().mockReturnValue(mockedCategory),
-            deleteUsersCategory: jest.fn(),
+            getAll: jest.fn().mockReturnValue(mockedCategories),
+            getById: jest.fn().mockReturnValue(mockedCategory),
+            create: jest.fn().mockReturnValue(mockedCategory),
+            update: jest.fn().mockReturnValue(mockedCategory),
+            delete: jest.fn(),
           },
         },
       ],

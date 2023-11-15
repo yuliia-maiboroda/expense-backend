@@ -11,22 +11,15 @@ import {
 @Injectable()
 export class CategoriesService {
   constructor(private readonly categoriesRepository: CategoriesRepository) {}
-  async getAllUsersCategories({
-    userId,
-  }: {
-    userId: number;
-  }): Promise<UserCategory[]> {
+  async getAll({ userId }: { userId: number }): Promise<UserCategory[]> {
     return await this.categoriesRepository.getAll({ userId });
   }
 
-  async createUsersCategory({
-    data,
-    userId,
-  }: ICreateCategory): Promise<UserCategory> {
+  async create({ data, userId }: ICreateCategory): Promise<UserCategory> {
     return await this.categoriesRepository.create({ data, userId });
   }
 
-  async updateUsersCategory({
+  async update({
     data,
     categoryId,
     userId,
@@ -34,14 +27,11 @@ export class CategoriesService {
     return await this.categoriesRepository.update({ data, categoryId, userId });
   }
 
-  async deleteUsersCategory({
-    categoryId,
-    userId,
-  }: IUserAndCategoryIds): Promise<void> {
+  async delete({ categoryId, userId }: IUserAndCategoryIds): Promise<void> {
     await this.categoriesRepository.delete({ categoryId, userId });
   }
 
-  async getCategoryById({
+  async getById({
     categoryId,
     userId,
   }: IUserAndCategoryIds): Promise<UserCategory> {
