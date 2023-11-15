@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
-import type { RequestWithUserInterface } from 'src/common/interfaces';
+import type { RequestWithUserInterface } from '../common/interfaces';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { UserCategory } from 'src/models/categories';
+import { UserCategory } from '../models/categories';
 import { UpdateCategoryDto } from './dto';
 import {
   ApiBearerAuth,

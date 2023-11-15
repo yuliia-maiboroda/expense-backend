@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Pool } from 'postgres-pool';
 
-import { PG_CONNECTION } from 'src/common/constants';
+import { PG_CONNECTION } from '../common/constants';
 
-import { DefaultCategory, UserCategory } from 'src/models/categories';
-import { Transaction } from 'src/models/transactions';
-import { User } from 'src/models/users';
+import { DefaultCategory, UserCategory } from '../models/categories';
+import { Transaction } from '../models/transactions';
+import { User } from '../models/users';
 import {
   ICreateCategory,
   ICreateTransaction,

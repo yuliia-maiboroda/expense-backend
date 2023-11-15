@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService } from '../database/database.service';
 import { ChangePasswordDto, UserLoginDto, UserRegistrationDto } from './dto';
 import { User, UserProperties } from '../models/users/user.schema';
 import { RETURNING_COLUMNS } from './constants';

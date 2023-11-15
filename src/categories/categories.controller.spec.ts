@@ -1,13 +1,13 @@
 import { Test } from '@nestjs/testing';
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
-import { AuthenticationModule } from 'src/authentication/authentication.module';
+import { AuthenticationModule } from '../authentication/authentication.module';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { CategoriesModule } from './categories.module';
-import { isGuarded } from 'src/test/utils';
-import { UserCategory } from 'src/models/categories';
-import { RequestWithUserInterface } from 'src/common/interfaces';
-import { User } from 'src/models/users';
+import { isGuarded } from '../test/utils';
+import { UserCategory } from '../models/categories';
+import { RequestWithUserInterface } from '../common/interfaces';
+import { User } from '../models/users';
 const httpMocks = require('node-mocks-http');
 
 // error     Cannot find module 'src/authentication/guards/jwt-auth.guard' from 'categories/categories.controller.ts'

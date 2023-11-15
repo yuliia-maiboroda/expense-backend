@@ -1,4 +1,4 @@
-import { TYPE_OF_CATEGORY } from '.';
+import { TYPE_OF_CATEGORY } from './constants';
 
 export class DefaultCategory {
   id!: number;

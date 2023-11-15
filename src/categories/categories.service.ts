@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { CategoriesRepository } from './categories.repository';
-import { UserCategory } from 'src/models/categories';
+import { UserCategory } from '../models/categories';
 import {
   ICreateCategory,
   IUpdateCategory,

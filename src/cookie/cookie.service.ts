@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { AuthenticationService } from 'src/authentication/authentication.service';
-import { IRefreshPayload } from 'src/authentication/interfaces/jwt-interface';
-import { DatabaseService } from 'src/database/database.service';
+import { AuthenticationService } from '../authentication/authentication.service';
+import { IRefreshPayload } from '../authentication/interfaces/jwt-interface';
+import { DatabaseService } from '../database/database.service';
 import { ISetCookieInterface } from './interfaces';
-import { User } from 'src/models/users';
+import { User } from '../models/users';
 
 @Injectable()
 export class CookieService {

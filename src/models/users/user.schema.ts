@@ -1,4 +1,4 @@
-import { ROLE_OF_USER } from 'src/models/users';
+import { ROLE_OF_USER } from './constants';
 
 export class User {
   id!: number;

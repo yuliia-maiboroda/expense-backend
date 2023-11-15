@@ -16,9 +16,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { TransactionsService } from './transactions.service';
-import type { RequestWithUserInterface } from 'src/common/interfaces';
+import type { RequestWithUserInterface } from '../common/interfaces';
 import { CreateTransactionDto, UpdateTransactionDto } from './dto';
 import { TransactionEntities } from './entities';
 

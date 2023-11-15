@@ -1,4 +1,4 @@
-import { UserRegistrationDto } from 'src/users/dto';
+import { UserRegistrationDto } from '../../users/dto';
 
 export interface IGetUserById {
   userId: number;

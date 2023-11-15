@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { DatabaseService } from 'src/database/database.service';
-import { UserCategory } from 'src/models/categories';
+import { DatabaseService } from '../database/database.service';
+import { UserCategory } from '../models/categories';
 import {
   ICreateCategory,
   IUpdateCategory,

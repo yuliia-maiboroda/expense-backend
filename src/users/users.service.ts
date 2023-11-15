@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersRepository } from './users.repository';
 import { ChangePasswordDto, UserLoginDto, UserRegistrationDto } from './dto';
-import { AuthenticationService } from 'src/authentication/authentication.service';
+import { AuthenticationService } from '../authentication/authentication.service';
 import {
   UserEntitiesWithToken,
   UserProperties,
 } from '../models/users/user.schema';
-import { CookieService } from 'src/cookie/cookie.service';
+import { CookieService } from '../cookie/cookie.service';
 
 @Injectable()
 export class UsersService {
