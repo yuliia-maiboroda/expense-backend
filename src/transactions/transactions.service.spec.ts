@@ -71,12 +71,26 @@ describe('TransactionsService', () => {
       jest
         .spyOn(transactionsService, 'getById')
         .mockRejectedValueOnce(new NotFoundException());
+
+      await expect(
+        transactionsService.getById({
+          transactionId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw not found error', async () => {
       jest
         .spyOn(transactionsService, 'getById')
         .mockRejectedValueOnce(new NotFoundException());
+
+      await expect(
+        transactionsService.getById({
+          transactionId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
