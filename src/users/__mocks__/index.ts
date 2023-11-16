@@ -1,15 +1,14 @@
-import { User } from '../../models/users';
+import { UserProperties } from '../../models/users';
 import { UserLoginDto, UserRegistrationDto } from '../dto';
 import { UserEntities } from '../entities';
 
-export const mockedUser: User = {
+export const mockedUser: UserProperties = {
   id: 1,
   username: 'test',
   displayname: 'test',
   role: 'user',
   sessionid: 'tested',
   refreshid: 'tested',
-  password: 'test',
 };
 
 export const mockedUserWithToken: UserEntities = {

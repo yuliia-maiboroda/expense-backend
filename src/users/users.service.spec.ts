@@ -7,7 +7,7 @@ import { UsersRepository } from './users.repository';
 import { CookieService } from '../cookie/cookie.service';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { AuthenticationModule } from '../authentication/authentication.module';
-import { UnauthorizedException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 
 describe('UsersService', () => {
   let usersService: UsersService;
@@ -105,6 +105,22 @@ describe('UsersService', () => {
         refreshToken: 'mockedRefreshToken',
       });
     });
+
+    it('should throw an error if user already exists', async () => {
+      jest
+        .spyOn(usersService, 'register')
+        .mockRejectedValueOnce(new ConflictException());
+
+      await expect(
+        usersService.register({
+          userData: {
+            username: 'test',
+            password: 'test',
+            displayname: 'test',
+          },
+        })
+      ).rejects.toThrow(ConflictException);
+    });
   });
 
   describe('login', () => {
@@ -126,6 +142,36 @@ describe('UsersService', () => {
         accessToken: 'mockedAccessToken',
         refreshToken: 'mockedRefreshToken',
       });
+    });
+
+    it('should throw an error if user is not found', async () => {
+      jest
+        .spyOn(usersService, 'login')
+        .mockRejectedValueOnce(new UnauthorizedException());
+
+      await expect(
+        usersService.login({
+          userData: {
+            username: 'test',
+            password: 'test',
+          },
+        })
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw an error if password is incorrect', async () => {
+      jest
+        .spyOn(usersService, 'login')
+        .mockRejectedValueOnce(new UnauthorizedException());
+
+      await expect(
+        usersService.login({
+          userData: {
+            username: 'test',
+            password: 'wrong',
+          },
+        })
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -153,6 +199,19 @@ describe('UsersService', () => {
         accessToken: 'mockedAccessToken',
         refreshToken: 'mockedRefreshToken',
       });
+    });
+
+    it('should throw an error if old password is incorrect', async () => {
+      jest
+        .spyOn(usersService, 'changePassword')
+        .mockRejectedValueOnce(new UnauthorizedException());
+
+      await expect(
+        usersService.changePassword({
+          id: 1,
+          data: { oldPassword: 'wrong', newPassword: 'test' },
+        })
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 
