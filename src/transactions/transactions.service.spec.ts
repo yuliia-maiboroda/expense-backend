@@ -4,6 +4,7 @@ import { TransactionsService } from './transactions.service';
 import { TransactionsRepository } from './transactions.repository';
 
 import { mockedTransactions, mockedTransaction } from './__mocks__';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 describe('TransactionsService', () => {
   let transactionsService: TransactionsService;
@@ -52,6 +53,31 @@ describe('TransactionsService', () => {
       expect(result.id).toBe(mockedTransaction.id);
       expect(result).toEqual(mockedTransaction);
     });
+
+    it('should throw forbidden error', async () => {
+      jest
+        .spyOn(transactionsService, 'getById')
+        .mockRejectedValueOnce(new ForbiddenException());
+
+      await expect(
+        transactionsService.getById({
+          transactionId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw not found error', async () => {
+      jest
+        .spyOn(transactionsService, 'getById')
+        .mockRejectedValueOnce(new NotFoundException());
+    });
+
+    it('should throw not found error', async () => {
+      jest
+        .spyOn(transactionsService, 'getById')
+        .mockRejectedValueOnce(new NotFoundException());
+    });
   });
 
   describe('create new transaction', () => {
@@ -74,6 +100,20 @@ describe('TransactionsService', () => {
       });
       expect(result).toEqual(mockedTransaction);
     });
+
+    it('should throw forbidden error', async () => {
+      jest
+        .spyOn(transactionsService, 'update')
+        .mockRejectedValueOnce(new ForbiddenException());
+
+      await expect(
+        transactionsService.update({
+          data: mockedTransaction,
+          transactionId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(ForbiddenException);
+    });
   });
 
   describe('delete transaction', () => {
@@ -83,6 +123,19 @@ describe('TransactionsService', () => {
         userId: 1,
       });
       expect(result).toBeUndefined();
+    });
+
+    it('should throw forbidden error', async () => {
+      jest
+        .spyOn(transactionsService, 'delete')
+        .mockRejectedValueOnce(new ForbiddenException());
+
+      await expect(
+        transactionsService.delete({
+          transactionId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

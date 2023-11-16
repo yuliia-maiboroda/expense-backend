@@ -4,6 +4,7 @@ import { CategoriesService } from './categories.service';
 import { CategoriesRepository } from './categories.repository';
 
 import { mockedCategories, mockedCategory } from './__mocks__';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 describe('CategoriesService', () => {
   let categoriesService: CategoriesService;
@@ -51,6 +52,34 @@ describe('CategoriesService', () => {
       });
       expect(result).toEqual(mockedCategory);
     });
+
+    it('should throw forbidden error', async () => {
+      jest
+        .spyOn(categoriesService, 'update')
+        .mockRejectedValueOnce(new ForbiddenException());
+
+      await expect(
+        categoriesService.update({
+          data: mockedCategory,
+          categoryId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw not found error', async () => {
+      jest
+        .spyOn(categoriesService, 'update')
+        .mockRejectedValueOnce(new NotFoundException());
+
+      await expect(
+        categoriesService.update({
+          data: mockedCategory,
+          categoryId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(NotFoundException);
+    });
   });
 
   describe('delete', () => {
@@ -60,6 +89,32 @@ describe('CategoriesService', () => {
         userId: 1,
       });
       expect(result).toBeUndefined();
+    });
+
+    it('should throw forbidden error', async () => {
+      jest
+        .spyOn(categoriesService, 'delete')
+        .mockRejectedValueOnce(new ForbiddenException());
+
+      await expect(
+        categoriesService.delete({
+          categoryId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw not found error', async () => {
+      jest
+        .spyOn(categoriesService, 'delete')
+        .mockRejectedValueOnce(new NotFoundException());
+
+      await expect(
+        categoriesService.delete({
+          categoryId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -84,6 +139,32 @@ describe('CategoriesService', () => {
       expect(result).toBeTruthy();
       expect(result.id).toBe(mockedCategory.id);
       expect(result).toEqual(mockedCategory);
+    });
+
+    it('should throw forbidden error', async () => {
+      jest
+        .spyOn(categoriesService, 'getById')
+        .mockRejectedValueOnce(new ForbiddenException());
+
+      await expect(
+        categoriesService.getById({
+          categoryId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw not found error', async () => {
+      jest
+        .spyOn(categoriesService, 'getById')
+        .mockRejectedValueOnce(new NotFoundException());
+
+      await expect(
+        categoriesService.getById({
+          categoryId: 1,
+          userId: 1,
+        })
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
