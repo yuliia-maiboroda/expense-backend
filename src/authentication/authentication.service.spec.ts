@@ -13,10 +13,10 @@ describe('AuthenticationService', () => {
   let authenticationService: AuthenticationService;
 
   beforeEach(async () => {
-    process.env['JWT_ACCESS_SECRET_KEY'] = 'mockedsecret';
-    process.env['JWT_ACCESS_LIFETIME'] = '3600';
-    process.env['JWT_REFRESH_SECRET_KEY'] = 'mockedrefreshsecret';
-    process.env['JWT_REFRESH_LIFETIME'] = '86400';
+    // process.env['JWT_ACCESS_SECRET_KEY'] = 'mockedsecret';
+    // process.env['JWT_ACCESS_LIFETIME'] = '3600';
+    // process.env['JWT_REFRESH_SECRET_KEY'] = 'mockedrefreshsecret';
+    // process.env['JWT_REFRESH_LIFETIME'] = '86400';
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {

@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Request } from 'express';
 
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
@@ -6,16 +7,30 @@ import { UsersRepository } from './users.repository';
 import { CookieService } from '../cookie/cookie.service';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { AuthenticationModule } from '../authentication/authentication.module';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('UsersService', () => {
   let usersService: UsersService;
+  let cookieService: CookieService;
+  let authenticationService: AuthenticationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AuthenticationModule],
       providers: [
         UsersService,
-        CookieService,
+        {
+          provide: CookieService,
+          useValue: {
+            setCookie: jest.fn(),
+            unsetCookie: jest.fn(),
+            validateRefreshTokenInCookie: jest.fn().mockReturnValue(1),
+            verifyRefreshToken: jest.fn().mockReturnValue({
+              userId: 1,
+              refreshId: 'tested',
+            }),
+          },
+        },
         {
           provide: AuthenticationService,
           useValue: {
@@ -59,6 +74,10 @@ describe('UsersService', () => {
     }).compile();
 
     usersService = module.get<UsersService>(UsersService);
+    cookieService = module.get<CookieService>(CookieService);
+    authenticationService = module.get<AuthenticationService>(
+      AuthenticationService
+    );
   });
 
   it('should be defined', () => {
@@ -135,11 +154,45 @@ describe('UsersService', () => {
         refreshToken: 'mockedRefreshToken',
       });
     });
+  });
 
-    // todo finish that testing
+  describe('refreshToken', () => {
+    it('should refresh tokens successfully', async () => {
+      const mockRequest: Partial<Request> = {};
+      const mockId = 1;
 
-    // describe('refreshToken', () => {
-    //   it('should refresh a user token', async () => {});
-    // });
+      jest
+        .spyOn(cookieService, 'validateRefreshTokenInCookie')
+        .mockResolvedValueOnce(mockId);
+      jest.spyOn(usersService, 'refreshToken').mockResolvedValueOnce({
+        accessToken: 'someAccessToken',
+        refreshToken: 'someRefreshToken',
+      });
+      jest
+        .spyOn(authenticationService, 'generateAccessToken')
+        .mockReturnValueOnce('someAccessToken');
+      jest
+        .spyOn(authenticationService, 'generateRefreshToken')
+        .mockReturnValueOnce('someRefreshToken');
+
+      const result = await usersService.refreshToken(mockRequest as Request);
+
+      expect(result).toEqual({
+        accessToken: 'someAccessToken',
+        refreshToken: 'someRefreshToken',
+      });
+    });
+
+    it('should throw an error if validateRefreshTokenInCookie fails', async () => {
+      const mockRequest: Partial<Request> = {};
+
+      jest
+        .spyOn(cookieService, 'validateRefreshTokenInCookie')
+        .mockRejectedValueOnce(new UnauthorizedException());
+
+      await expect(
+        usersService.refreshToken(mockRequest as Request)
+      ).rejects.toThrow(UnauthorizedException);
+    });
   });
 });
