@@ -6,25 +6,25 @@ class UserProperties {
     description: 'User id',
     type: Number,
   })
-  id: number;
+  id!: number;
 
   @ApiProperty({
     description: 'User username',
     type: String,
   })
-  username: string;
+  username!: string;
 
   @ApiProperty({
     description: 'User displayname',
     type: String,
   })
-  displayname: string;
+  displayname!: string;
 
   @ApiProperty({
     description: 'User role',
     enum: ROLE_OF_USER,
   })
-  role: keyof typeof ROLE_OF_USER;
+  role!: keyof typeof ROLE_OF_USER;
 }
 
 export class UserEntities {
@@ -32,7 +32,7 @@ export class UserEntities {
     description: 'User properties',
     type: UserProperties,
   })
-  user: {
+  user!: {
     id: number;
     username: string;
     displayname: string;
@@ -43,5 +43,5 @@ export class UserEntities {
     description: 'Access token',
     type: String,
   })
-  accessToken: string;
+  accessToken!: string;
 }

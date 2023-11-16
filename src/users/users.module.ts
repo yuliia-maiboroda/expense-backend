@@ -20,4 +20,6 @@ import { CookieModule } from 'src/cookie/cookie.module';
   ],
   controllers: [UsersController],
 })
+
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class UsersModule {}

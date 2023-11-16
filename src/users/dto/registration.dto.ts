@@ -23,7 +23,7 @@ export class UserRegistrationDto {
     maximum: 50,
     required: true,
   })
-  username: string;
+  username!: string;
 
   @IsNotEmpty({ message: 'Displayname cannot be empty' })
   @IsString({ message: 'Displayname must be a string' })
@@ -40,7 +40,7 @@ export class UserRegistrationDto {
     maximum: 50,
     required: true,
   })
-  displayname: string;
+  displayname!: string;
 
   @IsNotEmpty({ message: 'Password cannot be empty' })
   @IsString({ message: 'Password must be a string' })
@@ -61,5 +61,5 @@ export class UserRegistrationDto {
     maximum: 30,
     required: true,
   })
-  password: string;
+  password!: string;
 }

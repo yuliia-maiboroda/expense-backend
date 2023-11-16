@@ -8,4 +8,6 @@ import { AuthenticationService } from 'src/authentication/authentication.service
   exports: [CookieService],
   providers: [CookieService, AuthenticationService],
 })
+
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class CookieModule {}

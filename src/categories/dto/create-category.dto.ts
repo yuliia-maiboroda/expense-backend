@@ -24,7 +24,7 @@ export class CreateCategoryDto {
     maximum: 50,
     required: true,
   })
-  label: string;
+  label!: string;
 
   @IsNotEmpty({ message: 'Category type cannot be empty' })
   @IsEnum(TYPE_OF_CATEGORY, {
@@ -35,5 +35,5 @@ export class CreateCategoryDto {
     enum: TYPE_OF_CATEGORY,
     required: true,
   })
-  type: keyof typeof TYPE_OF_CATEGORY;
+  type!: keyof typeof TYPE_OF_CATEGORY;
 }
