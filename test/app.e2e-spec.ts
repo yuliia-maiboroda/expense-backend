@@ -4,6 +4,7 @@ import { AppModule } from './../src/app.module';
 import { DatabaseModule } from '../src/database/database.module';
 import { AuthenticationModule } from '../src/authentication/authentication.module';
 import { DatabaseService } from '../src/database/database.service';
+import cookieParser from 'cookie-parser';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -15,6 +16,7 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.use(cookieParser());
     await app.init();
   });
 });
