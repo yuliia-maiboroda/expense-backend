@@ -18,10 +18,10 @@ import type { Request, Response } from 'express';
 
 import { ChangePasswordDto, UserLoginDto, UserRegistrationDto } from './dto';
 import { UsersService } from './users.service';
-import { CookieService } from 'src/cookie/cookie.service';
-import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
+import { CookieService } from '../cookie/cookie.service';
+import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { TokenEntities, UserEntities } from './entities';
-import type { RequestWithUserInterface } from 'src/common/interfaces/request.interface';
+import { User } from '../common/decorators';
 
 @ApiTags('Users')
 @Controller('users')
@@ -117,10 +117,10 @@ export class UsersController {
   @Post('/logout')
   @HttpCode(204)
   async logout(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
-    await this.usersService.logout({ userId: req.user.id });
+    await this.usersService.logout({ userId });
 
     this.cookieService.unsetCookie(response);
   }
@@ -174,13 +174,13 @@ export class UsersController {
   @Post('/change-password')
   @HttpCode(200)
   async changePassword(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Body() userData: ChangePasswordDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<TokenEntities> {
     const { accessToken, refreshToken } =
       await this.usersService.changePassword({
-        id: req.user.id,
+        id: userId,
         data: userData,
       });
 

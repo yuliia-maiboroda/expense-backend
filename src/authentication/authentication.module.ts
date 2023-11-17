@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
-import { DatabaseModule } from 'src/database/database.module';
+import { DatabaseModule } from '../database/database.module';
 
 @Global()
 @Module({

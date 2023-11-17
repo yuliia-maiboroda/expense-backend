@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { Pool } from 'postgres-pool';
-import { POSTGRES_CONFIG } from 'src/config/database/postgres';
-import { PG_CONNECTION } from 'src/common/constants';
+import { POSTGRES_CONFIG } from '../config/database/postgres';
+import { PG_CONNECTION } from '../common/constants';
 import { DatabaseService } from './database.service';
 
 const pool = new Pool(POSTGRES_CONFIG);

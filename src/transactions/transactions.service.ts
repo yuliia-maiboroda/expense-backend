@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TransactionsRepository } from './transactions.repository';
-import { Transaction } from 'src/models/transactions';
+import { Transaction } from '../models/transactions';
 import {
   ICreateTransaction,
   IUpdateTransaction,

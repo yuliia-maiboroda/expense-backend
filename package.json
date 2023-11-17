@@ -47,7 +47,7 @@
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
-    "@nestjs/testing": "^10.0.0",
+    "@nestjs/testing": "^10.2.8",
     "@tsconfig/node20": "^20.1.2",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.6",
@@ -87,6 +87,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "maxWorkers": 1
   }
 }

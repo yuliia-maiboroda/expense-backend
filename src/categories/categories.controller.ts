@@ -6,15 +6,13 @@ import {
   HttpCode,
   Param,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 
-import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
-import type { RequestWithUserInterface } from 'src/common/interfaces';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { UserCategory } from 'src/models/categories';
+import { UserCategory } from '../models/categories';
 import { UpdateCategoryDto } from './dto';
 import {
   ApiBearerAuth,
@@ -23,6 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CategoryEntities } from './entities';
+import { User } from '../common/decorators';
 
 @ApiTags('Categories')
 @ApiBearerAuth()
@@ -44,9 +43,9 @@ export class CategoriesController {
   })
   @Get('/')
   @HttpCode(200)
-  async getAll(@Req() req: RequestWithUserInterface): Promise<UserCategory[]> {
-    return this.categoriesService.getAllUsersCategories({
-      userId: req.user.id,
+  async getAll(@User('id') userId: number): Promise<UserCategory[]> {
+    return this.categoriesService.getAll({
+      userId,
     });
   }
 
@@ -68,12 +67,12 @@ export class CategoriesController {
   @Post('/')
   @HttpCode(201)
   async create(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Body() category: CreateCategoryDto
   ): Promise<UserCategory> {
-    return this.categoriesService.createUsersCategory({
+    return await this.categoriesService.create({
       data: category,
-      userId: req.user.id,
+      userId,
     });
   }
 
@@ -103,14 +102,14 @@ export class CategoriesController {
   @Post('/:categoryId')
   @HttpCode(200)
   async update(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Param('categoryId') categoryId: number,
     @Body() category: UpdateCategoryDto
   ): Promise<UserCategory> {
-    return this.categoriesService.updateUsersCategory({
+    return this.categoriesService.update({
       data: category,
-      categoryId: categoryId,
-      userId: req.user.id,
+      categoryId,
+      userId,
     });
   }
 
@@ -135,12 +134,12 @@ export class CategoriesController {
   @Delete('/:categoryId')
   @HttpCode(204)
   async delete(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Param('categoryId') categoryId: number
   ): Promise<void> {
-    await this.categoriesService.deleteUsersCategory({
+    await this.categoriesService.delete({
       categoryId,
-      userId: req.user.id,
+      userId,
     });
   }
 
@@ -166,12 +165,12 @@ export class CategoriesController {
   @Get('/:categoryId')
   @HttpCode(200)
   async getById(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Param('categoryId') categoryId: number
   ): Promise<UserCategory> {
-    return this.categoriesService.getCategoryById({
+    return this.categoriesService.getById({
       categoryId,
-      userId: req.user.id,
+      userId,
     });
   }
 }

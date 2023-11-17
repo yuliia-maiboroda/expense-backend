@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ROLE_OF_USER } from 'src/models/users';
+import { ROLE_OF_USER } from '../../models/users';
 
 class UserProperties {
   @ApiProperty({

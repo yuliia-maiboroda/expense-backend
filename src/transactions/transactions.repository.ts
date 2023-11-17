@@ -6,9 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { DatabaseService } from 'src/database/database.service';
-import { Transaction } from 'src/models/transactions';
-import { TYPE_OF_CATEGORY } from 'src/models/categories';
+import { DatabaseService } from '../database/database.service';
+import { Transaction } from '../models/transactions';
+import { TYPE_OF_CATEGORY } from '../models/categories';
 import {
   ICreateTransaction,
   IUpdateTransaction,

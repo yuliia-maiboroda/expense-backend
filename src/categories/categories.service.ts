@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { CategoriesRepository } from './categories.repository';
-import { UserCategory } from 'src/models/categories';
+import { UserCategory } from '../models/categories';
 import {
   ICreateCategory,
   IUpdateCategory,
@@ -11,40 +11,30 @@ import {
 @Injectable()
 export class CategoriesService {
   constructor(private readonly categoriesRepository: CategoriesRepository) {}
-  async getAllUsersCategories({
-    userId,
-  }: {
-    userId: number;
-  }): Promise<UserCategory[]> {
-    return this.categoriesRepository.getAll({ userId });
+  async getAll({ userId }: { userId: number }): Promise<UserCategory[]> {
+    return await this.categoriesRepository.getAll({ userId });
   }
 
-  async createUsersCategory({
-    data,
-    userId,
-  }: ICreateCategory): Promise<UserCategory> {
-    return this.categoriesRepository.create({ data, userId });
+  async create({ data, userId }: ICreateCategory): Promise<UserCategory> {
+    return await this.categoriesRepository.create({ data, userId });
   }
 
-  async updateUsersCategory({
+  async update({
     data,
     categoryId,
     userId,
   }: IUpdateCategory): Promise<UserCategory> {
-    return this.categoriesRepository.update({ data, categoryId, userId });
+    return await this.categoriesRepository.update({ data, categoryId, userId });
   }
 
-  async deleteUsersCategory({
-    categoryId,
-    userId,
-  }: IUserAndCategoryIds): Promise<void> {
+  async delete({ categoryId, userId }: IUserAndCategoryIds): Promise<void> {
     await this.categoriesRepository.delete({ categoryId, userId });
   }
 
-  async getCategoryById({
+  async getById({
     categoryId,
     userId,
   }: IUserAndCategoryIds): Promise<UserCategory> {
-    return this.categoriesRepository.getById({ categoryId, userId });
+    return await this.categoriesRepository.getById({ categoryId, userId });
   }
 }

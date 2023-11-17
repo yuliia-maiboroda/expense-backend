@@ -6,7 +6,6 @@ import {
   HttpCode,
   Param,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -16,11 +15,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { TransactionsService } from './transactions.service';
-import type { RequestWithUserInterface } from 'src/common/interfaces';
 import { CreateTransactionDto, UpdateTransactionDto } from './dto';
 import { TransactionEntities } from './entities';
+import { User } from '../common/decorators';
 
 @ApiTags('Transactions')
 @ApiBearerAuth()
@@ -42,8 +41,8 @@ export class TransactionsController {
   })
   @Get('/')
   @HttpCode(200)
-  async getAll(@Req() req: RequestWithUserInterface) {
-    return this.transactionsService.getAll({ userId: req.user.id });
+  async getAll(@User('id') userId: number) {
+    return this.transactionsService.getAll({ userId });
   }
 
   @ApiOperation({
@@ -72,13 +71,13 @@ export class TransactionsController {
   @Post('/:categoryId/category')
   @HttpCode(201)
   async create(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Param('categoryId') categoryId: number,
     @Body() transactionData: CreateTransactionDto
   ) {
     return this.transactionsService.create({
       data: transactionData,
-      userId: req.user.id,
+      userId,
       categoryId,
     });
   }
@@ -113,14 +112,14 @@ export class TransactionsController {
   @Post('/:transactionId')
   @HttpCode(200)
   async update(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Param('transactionId') transactionId: number,
     @Body() transactionData: UpdateTransactionDto
   ) {
     return this.transactionsService.update({
       data: transactionData,
       transactionId,
-      userId: req.user.id,
+      userId,
     });
   }
 
@@ -146,12 +145,12 @@ export class TransactionsController {
   @Get('/:transactionId')
   @HttpCode(200)
   async getById(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Param('transactionId') transactionId: number
   ) {
     return this.transactionsService.getById({
       transactionId,
-      userId: req.user.id,
+      userId,
     });
   }
 
@@ -176,12 +175,12 @@ export class TransactionsController {
   @Delete('/:transactionId')
   @HttpCode(204)
   async delete(
-    @Req() req: RequestWithUserInterface,
+    @User('id') userId: number,
     @Param('transactionId') transactionId: number
   ) {
     await this.transactionsService.delete({
       transactionId,
-      userId: req.user.id,
+      userId,
     });
   }
 }

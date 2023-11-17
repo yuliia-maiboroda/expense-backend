@@ -1,4 +1,4 @@
-import { CreateCategoryDto, UpdateCategoryDto } from 'src/categories/dto';
+import { CreateCategoryDto, UpdateCategoryDto } from '../../categories/dto';
 
 export interface ICreateCategory {
   data: CreateCategoryDto;

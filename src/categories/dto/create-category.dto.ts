@@ -6,7 +6,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TYPE_OF_CATEGORY } from 'src/models/categories';
+import { TYPE_OF_CATEGORY } from '../../models/categories';
 
 export class CreateCategoryDto {
   @IsNotEmpty({ message: 'Category name cannot be empty' })

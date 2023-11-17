@@ -7,9 +7,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 
 import { AuthenticationService } from '../authentication.service';
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService } from '../../database/database.service';
 import { IPayload } from '../interfaces/jwt-interface';
-import { User } from 'src/models/users';
+import { User } from '../../models/users';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -22,6 +22,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   override async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
+    const isAuthenticated = request.isAuthenticated();
+
+    if (!isAuthenticated) {
+      throw new UnauthorizedException();
+    }
     const headers = request.headers as Record<string, string>;
 
     const token = this.extractTokenFromHeaders(headers['authorization']);

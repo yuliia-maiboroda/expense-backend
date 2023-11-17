@@ -1,7 +1,7 @@
 import {
   CreateTransactionDto,
   UpdateTransactionDto,
-} from 'src/transactions/dto';
+} from '../../transactions/dto';
 
 export interface IGetUserTransactionById {
   userId: number;
